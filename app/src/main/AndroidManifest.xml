@@ -4,7 +4,7 @@
     <application
         android:label="GuessDuel"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
-
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -15,7 +15,7 @@
             </intent-filter>
 
         </activity>
-
+        <activity android:name=".GameActivity" />
     </application>
 
 </manifest>
