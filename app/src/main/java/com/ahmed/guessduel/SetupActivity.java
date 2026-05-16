@@ -7,31 +7,41 @@ import android.widget.*;
 
 public class SetupActivity extends Activity {
 
+    int setter, scoreP1, scoreP2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
         EditText input = findViewById(R.id.secretInput);
-        Button start = findViewById(R.id.startDuelBtn);
+        Button btn = findViewById(R.id.startDuelBtn);
+        TextView title = findViewById(R.id.titleText);
 
-        start.setOnClickListener(v -> {
+        setter = getIntent().getIntExtra("setter", 1);
+        scoreP1 = getIntent().getIntExtra("scoreP1", 0);
+        scoreP2 = getIntent().getIntExtra("scoreP2", 0);
+
+        title.setText("Player " + setter + " set number");
+        btn.setText("Set ✅");
+
+        btn.setOnClickListener(v -> {
 
             String text = input.getText().toString();
-
             if (text.isEmpty()) return;
 
             try {
                 int secret = Integer.parseInt(text);
 
-                Intent intent = new Intent(this, GameActivity.class);
-                intent.putExtra("secret", secret);
+                Intent i = new Intent(this, GameActivity.class);
+                i.putExtra("secret", secret);
+                i.putExtra("setter", setter);
+                i.putExtra("scoreP1", scoreP1);
+                i.putExtra("scoreP2", scoreP2);
 
-                startActivity(intent);
+                startActivity(i);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (Exception ignored) {}
         });
     }
 }
