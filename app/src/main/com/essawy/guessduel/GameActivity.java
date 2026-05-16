@@ -19,15 +19,24 @@ public class GameActivity extends AppCompatActivity {
         Button btn = findViewById(R.id.submitBtn);
 
         btn.setOnClickListener(v -> {
-            String text = input.getText().toString();
+    String text = input.getText().toString();
 
-            if(text.isEmpty()) return;
+    if (text.isEmpty()) {
+        result.setText("Enter a number!");
+        return;
+    }
 
-            int g = Integer.parseInt(text);
+    try {
+        int g = Integer.parseInt(text);
 
-            if (g < secret) result.setText("⬆ Higher");
-            else if (g > secret) result.setText("⬇ Lower");
-            else result.setText("✅ Correct!");
-        });
+        if (g < secret) result.setText("⬆ Higher");
+        else if (g > secret) result.setText("⬇ Lower");
+        else result.setText("✅ Correct!");
+
+    } catch (Exception e) {
+        result.setText("Invalid input!");
+    }
+});
+
     }
 }
