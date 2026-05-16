@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.essawy.guessduel"   // ✅ VERY IMPORTANT
+
     compileSdkVersion 34
 
     defaultConfig {
