@@ -13,45 +13,43 @@ public class GameActivity extends Activity {
 
     MediaPlayer clickSound;
 
+    EditText input;
+    TextView result, livesText, scoreText;
+    Button btn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        // UI Elements
-        EditText input = findViewById(R.id.input);
-        TextView result = findViewById(R.id.resultText);
-        TextView livesText = findViewById(R.id.livesText);
-        TextView scoreText = findViewById(R.id.scoreText);
-        Button btn = findViewById(R.id.submitBtn);
+        input = findViewById(R.id.input);
+        result = findViewById(R.id.resultText);
+        livesText = findViewById(R.id.livesText);
+        scoreText = findViewById(R.id.scoreText);
+        btn = findViewById(R.id.submitBtn);
 
-        // Setup sound
         clickSound = MediaPlayer.create(this, R.raw.click);
 
-        // Random number
-        secret = (int)(Math.random() * 100) + 1;
+        // ✅ Receive secret from Player 1
+        if (getIntent().hasExtra("secret")) {
+            secret = getIntent().getIntExtra("secret", 0);
+        } else {
+            secret = (int)(Math.random() * 100) + 1;
+        }
 
-        // Initial UI
-        livesText.setText("Lives: " + lives + " ❤️");
-        scoreText.setText("Score: " + score);
+        updateUI();
 
-        // Button click
         btn.setOnClickListener(v -> {
 
-            // 💥 Button Animation
             v.animate()
-                    .scaleX(0.9f)
-                    .scaleY(0.9f)
+                    .scaleX(0.9f).scaleY(0.9f)
                     .setDuration(100)
                     .withEndAction(() ->
                             v.animate().scaleX(1f).scaleY(1f).setDuration(100)
                     );
 
-            // 🔊 Play Sound (SAFE)
             if (clickSound != null) {
-                try {
-                    clickSound.start();
-                } catch (Exception ignored) {}
+                try { clickSound.start(); } catch (Exception ignored) {}
             }
 
             String text = input.getText().toString();
@@ -72,20 +70,17 @@ public class GameActivity extends Activity {
                     lives--;
                 } else {
                     score += 10;
-                    result.setText("✅ Correct!");
-
-                    // New round
-                    secret = (int)(Math.random() * 100) + 1;
+                    result.setText("✅ Player 2 Wins!");
                 }
 
-                // Update UI
-                livesText.setText("Lives: " + lives + " ❤️");
-                scoreText.setText("Score: " + score);
+                updateUI();
 
-                // Game over
                 if (lives <= 0) {
-                    result.setText("💀 Game Over! Final Score: " + score);
-                    btn.setEnabled(false);
+                    result.setText("💀 Player 1 Wins! Score: " + score);
+
+                    result.postDelayed(() -> {
+                        restartGame();
+                    }, 2000);
                 }
 
             } catch (Exception e) {
@@ -94,11 +89,27 @@ public class GameActivity extends Activity {
         });
     }
 
+    private void updateUI() {
+        livesText.setText("Lives: " + lives + " ❤️");
+        scoreText.setText("Score: " + score);
+    }
+
+    private void restartGame() {
+        score = 0;
+        lives = 5;
+        secret = (int)(Math.random() * 100) + 1;
+
+        input.setText("");
+        result.setText("New round!");
+        btn.setEnabled(true);
+
+        updateUI();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        // ✅ Release sound properly
         if (clickSound != null) {
             clickSound.release();
             clickSound = null;
