@@ -15,11 +15,8 @@ public class MainActivity extends Activity {
         Button start = findViewById(R.id.startBtn);
 
         start.setOnClickListener(v -> {
-            Intent intent = new Intent(this, GameActivity.class);
+            Intent intent = new Intent(this, SetupActivity.class);
             startActivity(intent);
-
-            // Smooth transition
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
     }
 }
