@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#121212"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Guess Duel 🎮"
+        android:textSize="26sp"
+        android:textColor="#FFFFFF"/>
+
+    <Button
+        android:id="@+id/startBtn"
+        android:text="Start Game"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#2962FF"
+        android:textColor="#FFFFFF"/>
+</LinearLayout>
