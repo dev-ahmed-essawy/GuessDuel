@@ -1,19 +1,25 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    namespace "com.ahmed.guessduel"
-
-    compileSdkVersion 34
+    namespace 'com.ahmed.guessduel'
+    compileSdk 34
 
     defaultConfig {
-        applicationId "com.essawy.guessduel"
-        minSdkVersion 21
-        targetSdkVersion 34
+        applicationId "com.ahmed.guessduel"
+        minSdk 21
+        targetSdk 34
         versionCode 1
         versionName "1.0"
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+        }
     }
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
