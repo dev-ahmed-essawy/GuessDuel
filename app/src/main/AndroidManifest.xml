@@ -2,22 +2,18 @@
     package="com.essawy.guessduel">
 
     <application
-        android:allowBackup="true"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
-        android:supportsRtl="true"
-        android:label="GuessDuel">
+        android:label="GuessDuel"
+        android:theme="@style/Theme.GuessDuel">
 
         <activity android:name=".GameActivity" />
 
         <activity
             android:name=".MainActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
 
     </application>
