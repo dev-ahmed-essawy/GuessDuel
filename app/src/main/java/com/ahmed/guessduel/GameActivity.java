@@ -14,16 +14,16 @@ public class GameActivity extends Activity {
     int setter;
     int guesser;
 
-    int scoreP1 = 0;
-    int scoreP2 = 0;
+    int scoreP1;
+    int scoreP2;
 
-    final int WIN_SCORE = 5; // 🏆 target
-
-    MediaPlayer clickSound;
+    final int WIN_SCORE = 5;
 
     EditText input;
     TextView result, livesText, turnText, scoreText;
     Button btn;
+
+    MediaPlayer clickSound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,15 +39,17 @@ public class GameActivity extends Activity {
 
         clickSound = MediaPlayer.create(this, R.raw.click);
 
+        // ✅ Get data
         secret = getIntent().getIntExtra("secret", 0);
         setter = getIntent().getIntExtra("setter", 1);
-
         scoreP1 = getIntent().getIntExtra("scoreP1", 0);
         scoreP2 = getIntent().getIntExtra("scoreP2", 0);
 
         guesser = (setter == 1) ? 2 : 1;
 
         startRound();
+
+        btn.setOnClickListener(v -> handleGuess());
     }
 
     private void startRound() {
@@ -63,86 +65,71 @@ public class GameActivity extends Activity {
 
     private void updateUI() {
         livesText.setText("Lives: " + lives + " ❤️");
-        scoreText.setText("P1: " + scoreP1 + "  |  P2: " + scoreP2);
+        scoreText.setText("P1: " + scoreP1 + " | P2: " + scoreP2);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (clickSound != null) clickSound.release();
-    }
+    private void handleGuess() {
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+        if (clickSound != null) {
+            try { clickSound.start(); } catch (Exception ignored) {}
+        }
 
-        btn.setOnClickListener(v -> {
+        String text = input.getText().toString();
+        if (text.isEmpty()) return;
 
-            v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100)
-                    .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(100));
+        try {
+            int g = Integer.parseInt(text);
 
-            if (clickSound != null) {
-                try { clickSound.start(); } catch (Exception ignored) {}
+            if (g < secret) {
+                result.setText("⬆ Higher");
+                lives--;
+            }
+            else if (g > secret) {
+                result.setText("⬇ Lower");
+                lives--;
+            }
+            else {
+                // ✅ Guesser wins round
+                if (guesser == 1) scoreP1++;
+                else scoreP2++;
+
+                result.setText("✅ Player " + guesser + " wins the round!");
+
+                if (checkWinner()) return;
+
+                nextTurn();
+                return;
             }
 
-            String text = input.getText().toString();
-            if (text.isEmpty()) return;
+            updateUI();
 
-            try {
-                int value = Integer.parseInt(text);
+            if (lives <= 0) {
+                // ✅ Setter wins round
+                if (setter == 1) scoreP1++;
+                else scoreP2++;
 
-                if (value < secret) {
-                    result.setText("⬆ Higher");
-                    lives--;
-                }
-                else if (value > secret) {
-                    result.setText("⬇ Lower");
-                    lives--;
-                }
-                else {
-                    // ✅ Guesser wins round
-                    if (guesser == 1) scoreP1++;
-                    else scoreP2++;
+                result.setText("💀 Player " + setter + " wins the round!");
 
-                    result.setText("✅ Player " + guesser + " wins round!");
+                if (checkWinner()) return;
 
-                    if (checkGameWinner()) return;
-
-                    switchTurn();
-                    return;
-                }
-
-                updateUI();
-
-                if (lives <= 0) {
-                    // ✅ Setter wins round
-                    if (setter == 1) scoreP1++;
-                    else scoreP2++;
-
-                    result.setText("💀 Player " + setter + " wins round!");
-
-                    if (checkGameWinner()) return;
-
-                    switchTurn();
-                }
-
-            } catch (Exception e) {
-                result.setText("Invalid input!");
+                nextTurn();
             }
-        });
+
+        } catch (Exception e) {
+            result.setText("Invalid input!");
+        }
     }
 
-    // ✅ CHECK FINAL WINNER
-    private boolean checkGameWinner() {
+    private boolean checkWinner() {
 
         if (scoreP1 >= WIN_SCORE) {
-            result.setText("🏆 Player 1 WINS THE GAME!");
+            result.setText("🏆 PLAYER 1 WINS THE GAME!");
             btn.setEnabled(false);
             return true;
         }
 
         if (scoreP2 >= WIN_SCORE) {
-            result.setText("🏆 Player 2 WINS THE GAME!");
+            result.setText("🏆 PLAYER 2 WINS THE GAME!");
             btn.setEnabled(false);
             return true;
         }
@@ -150,20 +137,23 @@ public class GameActivity extends Activity {
         return false;
     }
 
-    private void switchTurn() {
+    private void nextTurn() {
 
         int newSetter = guesser;
 
         result.postDelayed(() -> {
-
             Intent i = new Intent(this, SetupActivity.class);
             i.putExtra("setter", newSetter);
             i.putExtra("scoreP1", scoreP1);
             i.putExtra("scoreP2", scoreP2);
-
             startActivity(i);
             finish();
-
         }, 2000);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (clickSound != null) clickSound.release();
     }
 }
