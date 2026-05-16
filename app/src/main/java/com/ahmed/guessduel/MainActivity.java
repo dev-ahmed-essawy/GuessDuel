@@ -16,6 +16,9 @@ public class MainActivity extends Activity {
 
         start.setOnClickListener(v -> {
             Intent intent = new Intent(this, SetupActivity.class);
+            intent.putExtra("setter", 1);
+            intent.putExtra("scoreP1", 0);
+            intent.putExtra("scoreP2", 0);
             startActivity(intent);
         });
     }
