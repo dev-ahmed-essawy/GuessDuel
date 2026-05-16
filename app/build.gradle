@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.essawy.guessduel"   // ✅ VERY IMPORTANT
+    namespace "com.essawy.guessduel"
 
     compileSdkVersion 34
 
