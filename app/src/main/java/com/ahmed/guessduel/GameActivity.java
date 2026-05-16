@@ -8,13 +8,15 @@ import android.widget.*;
 public class GameActivity extends Activity {
 
     int secret;
-    int score = 0;
     int lives = 5;
+
+    int currentPlayer = 1; // 1 or 2
+    boolean isSettingPhase = true;
 
     MediaPlayer clickSound;
 
     EditText input;
-    TextView result, livesText, scoreText;
+    TextView result, livesText, turnText;
     Button btn;
 
     @Override
@@ -25,85 +27,39 @@ public class GameActivity extends Activity {
         input = findViewById(R.id.input);
         result = findViewById(R.id.resultText);
         livesText = findViewById(R.id.livesText);
-        scoreText = findViewById(R.id.scoreText);
+        turnText = findViewById(R.id.turnText);
         btn = findViewById(R.id.submitBtn);
 
         clickSound = MediaPlayer.create(this, R.raw.click);
 
-        // ✅ Receive secret from Player 1
-        if (getIntent().hasExtra("secret")) {
-            secret = getIntent().getIntExtra("secret", 0);
-        } else {
-            secret = (int)(Math.random() * 100) + 1;
-        }
-
-        updateUI();
-
-        btn.setOnClickListener(v -> {
-
-            v.animate()
-                    .scaleX(0.9f).scaleY(0.9f)
-                    .setDuration(100)
-                    .withEndAction(() ->
-                            v.animate().scaleX(1f).scaleY(1f).setDuration(100)
-                    );
-
-            if (clickSound != null) {
-                try { clickSound.start(); } catch (Exception ignored) {}
-            }
-
-            String text = input.getText().toString();
-
-            if (text.isEmpty()) {
-                result.setText("Enter a number!");
-                return;
-            }
-
-            try {
-                int g = Integer.parseInt(text);
-
-                if (g < secret) {
-                    result.setText("⬆ Higher");
-                    lives--;
-                } else if (g > secret) {
-                    result.setText("⬇ Lower");
-                    lives--;
-                } else {
-                    score += 10;
-                    result.setText("✅ Player 2 Wins!");
-                }
-
-                updateUI();
-
-                if (lives <= 0) {
-                    result.setText("💀 Player 1 Wins! Score: " + score);
-
-                    result.postDelayed(() -> {
-                        restartGame();
-                    }, 2000);
-                }
-
-            } catch (Exception e) {
-                result.setText("Invalid input!");
-            }
-        });
+        startSettingPhase();
     }
 
-    private void updateUI() {
-        livesText.setText("Lives: " + lives + " ❤️");
-        scoreText.setText("Score: " + score);
-    }
-
-    private void restartGame() {
-        score = 0;
-        lives = 5;
-        secret = (int)(Math.random() * 100) + 1;
+    // ✅ PHASE 1: Player sets secret
+    private void startSettingPhase() {
+        isSettingPhase = true;
 
         input.setText("");
-        result.setText("New round!");
-        btn.setEnabled(true);
+        result.setText("");
+        lives = 5;
 
-        updateUI();
+        turnText.setText("Player " + currentPlayer + " set a secret number");
+    }
+
+    // ✅ PHASE 2: Other player guesses
+    private void startGuessingPhase() {
+        isSettingPhase = false;
+
+        input.setText("");
+        lives = 5;
+
+        int guesser = (currentPlayer == 1) ? 2 : 1;
+        turnText.setText("Player " + guesser + " guessing...");
+        updateLives();
+    }
+
+    private void updateLives() {
+        livesText.setText("Lives: " + lives + " ❤️");
     }
 
     @Override
@@ -114,5 +70,81 @@ public class GameActivity extends Activity {
             clickSound.release();
             clickSound = null;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        btn.setOnClickListener(v -> {
+
+            // Animation
+            v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100)
+                    .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(100));
+
+            // Sound
+            if (clickSound != null) {
+                try { clickSound.start(); } catch (Exception ignored) {}
+            }
+
+            String text = input.getText().toString();
+            if (text.isEmpty()) return;
+
+            try {
+                int value = Integer.parseInt(text);
+
+                // ✅ SETTING PHASE
+                if (isSettingPhase) {
+
+                    secret = value;
+
+                    result.setText("✅ Secret set!");
+                    startGuessingPhase();
+
+                }
+                // ✅ GUESSING PHASE
+                else {
+
+                    if (value < secret) {
+                        result.setText("⬆ Higher");
+                        lives--;
+                    }
+                    else if (value > secret) {
+                        result.setText("⬇ Lower");
+                        lives--;
+                    }
+                    else {
+                        int winner = (currentPlayer == 1) ? 2 : 1;
+                        result.setText("✅ Player " + winner + " guessed correctly!");
+
+                        switchTurn();
+                        return;
+                    }
+
+                    updateLives();
+
+                    if (lives <= 0) {
+                        result.setText("💀 Player " + currentPlayer + " wins!");
+
+                        switchTurn();
+                    }
+                }
+
+            } catch (Exception e) {
+                result.setText("Invalid input!");
+            }
+        });
+    }
+
+    // ✅ SWITCH TURN
+    private void switchTurn() {
+
+        // Switch player
+        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+
+        // Delay then new round
+        result.postDelayed(() -> {
+            startSettingPhase();
+        }, 2000);
     }
 }
