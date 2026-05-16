@@ -21,12 +21,17 @@ public class SetupActivity extends Activity {
 
             if (text.isEmpty()) return;
 
-            int secret = Integer.parseInt(text);
+            try {
+                int secret = Integer.parseInt(text);
 
-            Intent intent = new Intent(this, GameActivity.class);
-            intent.putExtra("secret", secret);
+                Intent intent = new Intent(this, GameActivity.class);
+                intent.putExtra("secret", secret);
 
-            startActivity(intent);
+                startActivity(intent);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }
