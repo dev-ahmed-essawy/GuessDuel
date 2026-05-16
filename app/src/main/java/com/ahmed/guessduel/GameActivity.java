@@ -8,14 +8,9 @@ import android.widget.*;
 
 public class GameActivity extends Activity {
 
-    int secret;
-    int lives = 5;
-
-    int setter;
-    int guesser;
-
-    int scoreP1;
-    int scoreP2;
+    int secret, lives = 5;
+    int setter, guesser;
+    int scoreP1, scoreP2;
 
     final int WIN_SCORE = 5;
 
@@ -39,7 +34,6 @@ public class GameActivity extends Activity {
 
         clickSound = MediaPlayer.create(this, R.raw.click);
 
-        // ✅ Get data
         secret = getIntent().getIntExtra("secret", 0);
         setter = getIntent().getIntExtra("setter", 1);
         scoreP1 = getIntent().getIntExtra("scoreP1", 0);
@@ -58,8 +52,6 @@ public class GameActivity extends Activity {
         result.setText("");
 
         turnText.setText("Player " + guesser + " guessing...");
-        btn.setText("Guess ✅");
-
         updateUI();
     }
 
@@ -70,12 +62,12 @@ public class GameActivity extends Activity {
 
     private void handleGuess() {
 
+        String text = input.getText().toString();
+        if (text.isEmpty()) return;
+
         if (clickSound != null) {
             try { clickSound.start(); } catch (Exception ignored) {}
         }
-
-        String text = input.getText().toString();
-        if (text.isEmpty()) return;
 
         try {
             int g = Integer.parseInt(text);
@@ -83,17 +75,15 @@ public class GameActivity extends Activity {
             if (g < secret) {
                 result.setText("⬆ Higher");
                 lives--;
-            }
-            else if (g > secret) {
+            } else if (g > secret) {
                 result.setText("⬇ Lower");
                 lives--;
-            }
-            else {
-                // ✅ Guesser wins round
+            } else {
+
                 if (guesser == 1) scoreP1++;
                 else scoreP2++;
 
-                result.setText("✅ Player " + guesser + " wins the round!");
+                result.setText("✅ Player " + guesser + " wins round!");
 
                 if (checkWinner()) return;
 
@@ -104,11 +94,10 @@ public class GameActivity extends Activity {
             updateUI();
 
             if (lives <= 0) {
-                // ✅ Setter wins round
                 if (setter == 1) scoreP1++;
                 else scoreP2++;
 
-                result.setText("💀 Player " + setter + " wins the round!");
+                result.setText("💀 Player " + setter + " wins round!");
 
                 if (checkWinner()) return;
 
@@ -123,13 +112,13 @@ public class GameActivity extends Activity {
     private boolean checkWinner() {
 
         if (scoreP1 >= WIN_SCORE) {
-            result.setText("🏆 PLAYER 1 WINS THE GAME!");
+            result.setText("🏆 Player 1 WINS GAME!");
             btn.setEnabled(false);
             return true;
         }
 
         if (scoreP2 >= WIN_SCORE) {
-            result.setText("🏆 PLAYER 2 WINS THE GAME!");
+            result.setText("🏆 Player 2 WINS GAME!");
             btn.setEnabled(false);
             return true;
         }
