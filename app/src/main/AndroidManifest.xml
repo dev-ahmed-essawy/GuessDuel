@@ -2,8 +2,8 @@
 
     <application android:label="GuessDuel">
 
-        <activity android:name=".GameActivity" />
-        <activity android:name=".SetupActivity" />
+        <activity android:name=".GameActivity"/>
+        <activity android:name=".SetupActivity"/>
 
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
