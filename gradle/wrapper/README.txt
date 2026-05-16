@@ -1,1 +1,0 @@
-Download gradle-wrapper.jar from official Gradle repository or another Android project and place it here.
