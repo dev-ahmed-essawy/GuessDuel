@@ -1,6 +1,7 @@
 package com.ahmed.guessduel;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.*;
@@ -10,13 +11,18 @@ public class GameActivity extends Activity {
     int secret;
     int lives = 5;
 
-    int currentPlayer = 1; // 1 or 2
-    boolean isSettingPhase = true;
+    int setter;
+    int guesser;
+
+    int scoreP1 = 0;
+    int scoreP2 = 0;
+
+    final int WIN_SCORE = 5; // 🏆 target
 
     MediaPlayer clickSound;
 
     EditText input;
-    TextView result, livesText, turnText;
+    TextView result, livesText, turnText, scoreText;
     Button btn;
 
     @Override
@@ -28,48 +34,42 @@ public class GameActivity extends Activity {
         result = findViewById(R.id.resultText);
         livesText = findViewById(R.id.livesText);
         turnText = findViewById(R.id.turnText);
+        scoreText = findViewById(R.id.scoreText);
         btn = findViewById(R.id.submitBtn);
 
         clickSound = MediaPlayer.create(this, R.raw.click);
 
-        startSettingPhase();
+        secret = getIntent().getIntExtra("secret", 0);
+        setter = getIntent().getIntExtra("setter", 1);
+
+        scoreP1 = getIntent().getIntExtra("scoreP1", 0);
+        scoreP2 = getIntent().getIntExtra("scoreP2", 0);
+
+        guesser = (setter == 1) ? 2 : 1;
+
+        startRound();
     }
 
-    // ✅ PHASE 1: Player sets secret
-    private void startSettingPhase() {
-        isSettingPhase = true;
-
+    private void startRound() {
+        lives = 5;
         input.setText("");
         result.setText("");
-        lives = 5;
 
-        turnText.setText("Player " + currentPlayer + " set a secret number");
-    }
-
-    // ✅ PHASE 2: Other player guesses
-    private void startGuessingPhase() {
-        isSettingPhase = false;
-
-        input.setText("");
-        lives = 5;
-
-        int guesser = (currentPlayer == 1) ? 2 : 1;
         turnText.setText("Player " + guesser + " guessing...");
-        updateLives();
+        btn.setText("Guess ✅");
+
+        updateUI();
     }
 
-    private void updateLives() {
+    private void updateUI() {
         livesText.setText("Lives: " + lives + " ❤️");
+        scoreText.setText("P1: " + scoreP1 + "  |  P2: " + scoreP2);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (clickSound != null) {
-            clickSound.release();
-            clickSound = null;
-        }
+        if (clickSound != null) clickSound.release();
     }
 
     @Override
@@ -78,11 +78,9 @@ public class GameActivity extends Activity {
 
         btn.setOnClickListener(v -> {
 
-            // Animation
             v.animate().scaleX(0.9f).scaleY(0.9f).setDuration(100)
                     .withEndAction(() -> v.animate().scaleX(1f).scaleY(1f).setDuration(100));
 
-            // Sound
             if (clickSound != null) {
                 try { clickSound.start(); } catch (Exception ignored) {}
             }
@@ -93,41 +91,39 @@ public class GameActivity extends Activity {
             try {
                 int value = Integer.parseInt(text);
 
-                // ✅ SETTING PHASE
-                if (isSettingPhase) {
-
-                    secret = value;
-
-                    result.setText("✅ Secret set!");
-                    startGuessingPhase();
-
+                if (value < secret) {
+                    result.setText("⬆ Higher");
+                    lives--;
                 }
-                // ✅ GUESSING PHASE
+                else if (value > secret) {
+                    result.setText("⬇ Lower");
+                    lives--;
+                }
                 else {
+                    // ✅ Guesser wins round
+                    if (guesser == 1) scoreP1++;
+                    else scoreP2++;
 
-                    if (value < secret) {
-                        result.setText("⬆ Higher");
-                        lives--;
-                    }
-                    else if (value > secret) {
-                        result.setText("⬇ Lower");
-                        lives--;
-                    }
-                    else {
-                        int winner = (currentPlayer == 1) ? 2 : 1;
-                        result.setText("✅ Player " + winner + " guessed correctly!");
+                    result.setText("✅ Player " + guesser + " wins round!");
 
-                        switchTurn();
-                        return;
-                    }
+                    if (checkGameWinner()) return;
 
-                    updateLives();
+                    switchTurn();
+                    return;
+                }
 
-                    if (lives <= 0) {
-                        result.setText("💀 Player " + currentPlayer + " wins!");
+                updateUI();
 
-                        switchTurn();
-                    }
+                if (lives <= 0) {
+                    // ✅ Setter wins round
+                    if (setter == 1) scoreP1++;
+                    else scoreP2++;
+
+                    result.setText("💀 Player " + setter + " wins round!");
+
+                    if (checkGameWinner()) return;
+
+                    switchTurn();
                 }
 
             } catch (Exception e) {
@@ -136,15 +132,38 @@ public class GameActivity extends Activity {
         });
     }
 
-    // ✅ SWITCH TURN
+    // ✅ CHECK FINAL WINNER
+    private boolean checkGameWinner() {
+
+        if (scoreP1 >= WIN_SCORE) {
+            result.setText("🏆 Player 1 WINS THE GAME!");
+            btn.setEnabled(false);
+            return true;
+        }
+
+        if (scoreP2 >= WIN_SCORE) {
+            result.setText("🏆 Player 2 WINS THE GAME!");
+            btn.setEnabled(false);
+            return true;
+        }
+
+        return false;
+    }
+
     private void switchTurn() {
 
-        // Switch player
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
+        int newSetter = guesser;
 
-        // Delay then new round
         result.postDelayed(() -> {
-            startSettingPhase();
+
+            Intent i = new Intent(this, SetupActivity.class);
+            i.putExtra("setter", newSetter);
+            i.putExtra("scoreP1", scoreP1);
+            i.putExtra("scoreP2", scoreP2);
+
+            startActivity(i);
+            finish();
+
         }, 2000);
     }
 }
