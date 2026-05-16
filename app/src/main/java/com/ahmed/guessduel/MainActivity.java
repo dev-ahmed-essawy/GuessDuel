@@ -17,6 +17,9 @@ public class MainActivity extends Activity {
         start.setOnClickListener(v -> {
             Intent intent = new Intent(this, GameActivity.class);
             startActivity(intent);
+
+            // Smooth transition
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
     }
 }
