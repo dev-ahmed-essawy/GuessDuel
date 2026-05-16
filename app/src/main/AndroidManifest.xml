@@ -1,12 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.essawy.guessduel">
 
     <application
+        android:allowBackup="true"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+        android:supportsRtl="true"
         android:label="GuessDuel">
 
-        <!-- ✅ ADD THIS -->
         <activity android:name=".GameActivity" />
 
-        <!-- ✅ KEEP THIS -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
