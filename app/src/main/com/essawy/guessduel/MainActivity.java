@@ -14,7 +14,8 @@ public class MainActivity extends AppCompatActivity {
 
         Button start = findViewById(R.id.startBtn);
         start.setOnClickListener(v ->
-                startActivity(new Intent(this, GameActivity.class))
-        );
+    Toast.makeText(this, "WORKING ✅", Toast.LENGTH_SHORT).show()
+);
+
     }
 }
