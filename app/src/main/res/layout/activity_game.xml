@@ -44,7 +44,7 @@
         android:backgroundTint="#1F6FEB"
         android:padding="12dp"
         android:layout_width="240dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/submitBtn"
