@@ -1,5 +1,5 @@
 
-package com.example.guessduel;
+package com.essawy.guessduel;
 
 import android.os.Bundle;
 import android.widget.*;
