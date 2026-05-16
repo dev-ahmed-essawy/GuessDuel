@@ -3,6 +3,10 @@
     <application
         android:label="GuessDuel">
 
+        <!-- ✅ ADD THIS -->
+        <activity android:name=".GameActivity" />
+
+        <!-- ✅ KEEP THIS -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
