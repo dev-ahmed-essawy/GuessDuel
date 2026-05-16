@@ -5,26 +5,23 @@
     android:orientation="vertical"
     android:gravity="center"
     android:background="#0D1117"
-    android:padding="24dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
-        android:text="🎯 Player 1: Set Secret Number"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:text="🎯 Player 1: Enter Secret Number"
+        android:textSize="20sp"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/secretInput"
-        android:hint="Enter secret number"
+        android:hint="Secret number"
         android:textColor="#FFFFFF"
-        android:textColorHint="#9BA1A6"
-        android:backgroundTint="#1F6FEB"
-        android:layout_width="240dp"
+        android:textColorHint="#AAAAAA"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"/>
 
     <Button
@@ -33,7 +30,7 @@
         android:backgroundTint="#1F6FEB"
         android:textColor="#FFFFFF"
         android:layout_marginTop="20dp"
-        android:layout_width="240dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>
