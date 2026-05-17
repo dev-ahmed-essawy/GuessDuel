@@ -8,6 +8,7 @@ import android.widget.*;
 public class SetupActivity extends Activity {
 
     int setter, scoreP1, scoreP2;
+    String name1, name2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,27 +22,29 @@ public class SetupActivity extends Activity {
         setter = getIntent().getIntExtra("setter", 1);
         scoreP1 = getIntent().getIntExtra("scoreP1", 0);
         scoreP2 = getIntent().getIntExtra("scoreP2", 0);
+        name1 = getIntent().getStringExtra("name1");
+        name2 = getIntent().getStringExtra("name2");
 
-        title.setText("Player " + setter + " set number");
-        btn.setText("Set ✅");
+        String setterName = (setter == 1) ? name1 : name2;
+
+        title.setText(setterName + " set number");
 
         btn.setOnClickListener(v -> {
 
             String text = input.getText().toString();
             if (text.isEmpty()) return;
 
-            try {
-                int secret = Integer.parseInt(text);
+            int secret = Integer.parseInt(text);
 
-                Intent i = new Intent(this, GameActivity.class);
-                i.putExtra("secret", secret);
-                i.putExtra("setter", setter);
-                i.putExtra("scoreP1", scoreP1);
-                i.putExtra("scoreP2", scoreP2);
+            Intent i = new Intent(this, GameActivity.class);
+            i.putExtra("secret", secret);
+            i.putExtra("setter", setter);
+            i.putExtra("scoreP1", scoreP1);
+            i.putExtra("scoreP2", scoreP2);
+            i.putExtra("name1", name1);
+            i.putExtra("name2", name2);
 
-                startActivity(i);
-
-            } catch (Exception ignored) {}
+            startActivity(i);
         });
     }
 }
