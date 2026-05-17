@@ -41,7 +41,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        keypadContainer = findViewById(R.id.keypadContainer)
+        keypadContainer = findViewById(R.id.keypadContainer);
         display = findViewById(R.id.inputDisplay);
         result = findViewById(R.id.resultText);
         scoreText = findViewById(R.id.scoreText);
