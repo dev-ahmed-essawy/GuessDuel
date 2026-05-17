@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#0D1117"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- TROPHY -->
+    <ImageView
+        android:id="@+id/trophy"
+        android:src="@android:drawable/star_big_on"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginBottom="20dpoid:textStyle="bold"
+        android:layout_marginBottom="30dp"/>
+
+    <!-- RESTART -->
+    <Button
+        android:id="@+id/restartBtn"
+        android:text="Play Again 🔄"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+``
