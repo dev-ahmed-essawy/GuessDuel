@@ -7,9 +7,6 @@ import android.widget.*;
 
 public class SetupActivity extends Activity {
 
-    int setter, scoreP1, scoreP2;
-    String name1, name2;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,15 +16,15 @@ public class SetupActivity extends Activity {
         Button btn = findViewById(R.id.startDuelBtn);
         TextView title = findViewById(R.id.titleText);
 
-        setter = getIntent().getIntExtra("setter", 1);
-        scoreP1 = getIntent().getIntExtra("scoreP1", 0);
-        scoreP2 = getIntent().getIntExtra("scoreP2", 0);
-        name1 = getIntent().getStringExtra("name1");
-        name2 = getIntent().getStringExtra("name2");
+        int setter = getIntent().getIntExtra("setter", 1);
+        String name1 = getIntent().getStringExtra("name1");
+        String name2 = getIntent().getStringExtra("name2");
 
-        String setterName = (setter == 1) ? name1 : name2;
+        int scoreP1 = getIntent().getIntExtra("scoreP1", 0);
+        int scoreP2 = getIntent().getIntExtra("scoreP2", 0);
 
-        title.setText(setterName + " set number");
+        String setterName = setter == 1 ? name1 : name2;
+        title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
 
@@ -39,10 +36,10 @@ public class SetupActivity extends Activity {
             Intent i = new Intent(this, GameActivity.class);
             i.putExtra("secret", secret);
             i.putExtra("setter", setter);
-            i.putExtra("scoreP1", scoreP1);
-            i.putExtra("scoreP2", scoreP2);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
+            i.putExtra("scoreP1", scoreP1);
+            i.putExtra("scoreP2", scoreP2);
 
             startActivity(i);
         });
