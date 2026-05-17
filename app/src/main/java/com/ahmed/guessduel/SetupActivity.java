@@ -29,7 +29,15 @@ public class SetupActivity extends Activity {
         if (name1 == null) name1 = "Player 1";
         if (name2 == null) name2 = "Player 2";
 
-        title.setText((setter == 1 ? name1 : name2) + " sets number");
+        // ✅ FIX → create FINAL copies (IMPORTANT)
+        final String finalName1 = name1;
+        final String finalName2 = name2;
+        final int finalSetter = setter;
+        final int finalScoreP1 = scoreP1;
+        final int finalScoreP2 = scoreP2;
+        final int finalTimer = timer;
+
+        title.setText((finalSetter == 1 ? finalName1 : finalName2) + " sets number");
 
         int[] btns = {
                 R.id.btn0,R.id.btn1,R.id.btn2,R.id.btn3,R.id.btn4,
@@ -46,13 +54,15 @@ public class SetupActivity extends Activity {
             });
         }
 
+        // DELETE
         findViewById(R.id.btnDel).setOnClickListener(v -> {
             if (inputVal.length() > 0) {
                 inputVal.deleteCharAt(inputVal.length() - 1);
-                display.setText(inputVal.length()==0 ? "0" : inputVal.toString());
+                display.setText(inputVal.length() == 0 ? "0" : inputVal.toString());
             }
         });
 
+        // OK button
         findViewById(R.id.btnOk).setOnClickListener(v -> {
 
             if (inputVal.length() == 0) return;
@@ -64,14 +74,15 @@ public class SetupActivity extends Activity {
                 return;
             }
 
-            Intent i = new Intent(this, GameActivity.class);
+            Intent i = new Intent(SetupActivity.this, GameActivity.class);
+
             i.putExtra("secret", secret);
-            i.putExtra("setter", setter);
-            i.putExtra("timer", timer);
-            i.putExtra("name1", name1);
-            i.putExtra("name2", name2);
-            i.putExtra("scoreP1", scoreP1);
-            i.putExtra("scoreP2", scoreP2);
+            i.putExtra("setter", finalSetter);
+            i.putExtra("timer", finalTimer);
+            i.putExtra("name1", finalName1);   // ✅ FIXED
+            i.putExtra("name2", finalName2);   // ✅ FIXED
+            i.putExtra("scoreP1", finalScoreP1);
+            i.putExtra("scoreP2", finalScoreP2);
 
             startActivity(i);
         });
