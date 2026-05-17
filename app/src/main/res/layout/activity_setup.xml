@@ -21,18 +21,17 @@
     <!-- INPUT -->
     <EditText
         android:id="@+id/secretInput"
-        android:hint="Enter secret number"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter number"
         android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:textColorHint="#999999"/>
 
-    <!-- BUTTON -->
     <Button
         android:id="@+id/startDuelBtn"
-        android:text="Set ✅"
-        android:layout_marginTop="20dp"
-        android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Start Duel"
+        android:layout_marginTop="20dp"/>
 
 </LinearLayout>
