@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
     android:background="#0D1117"
@@ -8,41 +8,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- APP ICON -->
     <ImageView
         android:id="@+id/appIcon"
-        android:src="@drawable/ic_app"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginBottom="20dp"oid:layout_marginBottom="30dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_marginBottom="20dp"
+        android:src="@"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="30dp" />
 
-    <!-- PLAYER 1 -->
     <EditText
         android:id="@+id/player1Input"
-        android:hint="Player 1 name"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
         android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="Player 1 name" />
 
-    <!-- PLAYER 2 -->
     <EditText
         android:id="@+id/player2Input"
-        android:hint="Player 2 name"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        android:layout_marginTop="10dp"
         android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:hint="Player 2 name"
+        android:layout_marginTop="10dp" />
 
-    <!-- START BUTTON -->
     <Button
         android:id="@+id/startBtn"
-        android:text="Start Game 🚀"
-        android:layout_marginTop="20dp"
         android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Start Game"
+        android:layout_marginTop="20dp" />
 
 </LinearLayout>
