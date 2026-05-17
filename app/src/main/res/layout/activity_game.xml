@@ -18,6 +18,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"/>
+    
+    <TextView
+    android:id="@+id/turnText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time: 5"
+        android:textColor="#FF5252"/>
+
 
     <TextView
         android:id="@+id/timerText"
