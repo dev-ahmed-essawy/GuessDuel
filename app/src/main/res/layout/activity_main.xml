@@ -22,6 +22,9 @@
     <!-- PLAYER 1 -->
     <EditText
         android:id="@+id/player1Input"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#BBBBBB"
+        android:background="#333333"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:hint="Player 1 name" />
@@ -29,6 +32,9 @@
     <!-- PLAYER 2 -->
     <EditText
         android:id="@+id/player2Input"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#BBBBBB"
+        android:background="#333333"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:hint="Player 2 name"
