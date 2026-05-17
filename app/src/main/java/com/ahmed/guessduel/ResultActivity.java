@@ -13,18 +13,20 @@ public class ResultActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
+        // ✅ Find views (must exist in XML)
         TextView resultText = findViewById(R.id.resultText);
         Button restartBtn = findViewById(R.id.restartBtn);
 
-        // ✅ SAFE INTENT
+        // ✅ Get winner safely
         String winner = getIntent().getStringExtra("winner");
         if (winner == null) {
             winner = "Player";
         }
 
-        resultText.setText(winner + " WINS!");
+        // ✅ Show result
+        resultText.setText("🏆 " + winner + " WINS!");
 
-        // ✅ SAFE RESTART
+        // ✅ Restart game
         restartBtn.setOnClickListener(v -> {
             Intent i = new Intent(ResultActivity.this, MainActivity.class);
             startActivity(i);
