@@ -22,14 +22,11 @@ public class MainActivity extends Activity {
             String name2 = p2.getText().toString();
 
             if (name1.isEmpty()) name1 = "Player 1";
-            if (name2.isEmpty()) name2 = "Player 2";
+            if (name2.isEmpty()) name2 = "AI"; // ✅ AI support
 
-            Intent i = new Intent(this, SetupActivity.class);
+            Intent i = new Intent(this, DifficultyActivity.class);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
-            i.putExtra("setter", 1);
-            i.putExtra("scoreP1", 0);
-            i.putExtra("scoreP2", 0);
 
             startActivity(i);
         });
