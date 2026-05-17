@@ -25,19 +25,36 @@ public class SetupActivity extends Activity {
         int scoreP1 = getIntent().getIntExtra("scoreP1", 0);
         int scoreP2 = getIntent().getIntExtra("scoreP2", 0);
 
-        String setterName = setter == 1 ? name1 : name2;
+        if (name1 == null) name1 = "Player 1";
+        if (name2 == null) name2 = "Player 2";
+
+        // ✅ Detect AI mode
+        boolean isAI = name2.equals("AI");
+
+        // ✅ FIX: In AI mode → player 1 always sets the number
+        String setterName;
+        if (isAI) {
+            setter = 1;
+            setterName = name1;
+        } else {
+            setterName = (setter == 1) ? name1 : name2;
+        }
+
         title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
 
             String text = input.getText().toString().trim();
 
+            // ✅ Empty check
             if (text.isEmpty()) {
                 input.setError("Enter a number!");
                 return;
             }
 
             int secret;
+
+            // ✅ Safe parsing
             try {
                 secret = Integer.parseInt(text);
             } catch (Exception e) {
@@ -45,11 +62,13 @@ public class SetupActivity extends Activity {
                 return;
             }
 
+            // ✅ Range check
             if (secret < 0 || secret > 100) {
                 input.setError("0 - 100 only");
                 return;
             }
 
+            // ✅ Move to GameActivity
             Intent i = new Intent(SetupActivity.this, GameActivity.class);
 
             i.putExtra("secret", secret);
