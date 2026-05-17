@@ -17,6 +17,8 @@ public class SetupActivity extends Activity {
         TextView title = findViewById(R.id.titleText);
 
         int setter = getIntent().getIntExtra("setter", 1);
+        int timer = getIntent().getIntExtra("timer", 15);
+
         String name1 = getIntent().getStringExtra("name1");
         String name2 = getIntent().getStringExtra("name2");
 
@@ -27,38 +29,37 @@ public class SetupActivity extends Activity {
         title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
-        
+
             String text = input.getText().toString().trim();
-            // ✅ EMPTY CHECK
+
             if (text.isEmpty()) {
                 input.setError("Enter a number!");
                 return;
             }
-        
+
             int secret;
-        
             try {
                 secret = Integer.parseInt(text);
             } catch (Exception e) {
                 input.setError("Invalid number!");
                 return;
             }
-        
-            // ✅ RANGE CHECK
+
             if (secret < 0 || secret > 100) {
                 input.setError("0 - 100 only");
                 return;
             }
-        
+
             Intent i = new Intent(SetupActivity.this, GameActivity.class);
-        
+
             i.putExtra("secret", secret);
             i.putExtra("setter", setter);
+            i.putExtra("timer", timer);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
             i.putExtra("scoreP1", scoreP1);
             i.putExtra("scoreP2", scoreP2);
-        
+
             startActivity(i);
         });
     }
