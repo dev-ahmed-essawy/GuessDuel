@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.widget.*;
 
 public class GameActivity extends Activity {
@@ -18,8 +19,10 @@ public class GameActivity extends Activity {
 
     MediaPlayer clickSound, winSound, loseSound;
 
+    CountDownTimer timer;
+
     EditText input;
-    TextView result, scoreText, turnText, livesText;
+    TextView result, scoreText, turnText, livesText, timerText;
     Button btn;
 
     @Override
@@ -32,6 +35,7 @@ public class GameActivity extends Activity {
         scoreText = findViewById(R.id.scoreText);
         turnText = findViewById(R.id.turnText);
         livesText = findViewById(R.id.livesText);
+        timerText = findViewById(R.id.timerText);
         btn = findViewById(R.id.submitBtn);
 
         // ✅ Sounds
@@ -64,6 +68,47 @@ public class GameActivity extends Activity {
 
         turnText.setText(getName(guesser) + " guessing...");
         updateUI();
+
+        startTimer(); // ✅ NEW FEATURE
+    }
+
+    private void startTimer() {
+
+        if (timer != null) {
+            timer.cancel();
+        }
+
+        timer = new CountDownTimer(5000, 1000) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                timerText.setText("Time: " + millisUntilFinished / 1000);
+            }
+
+            @Override
+            public void onFinish() {
+
+                result.setText("⏰ Time's up!");
+                lives--;
+
+                updateUI();
+
+                if (lives <= 0) {
+
+                    if (loseSound != null) loseSound.start();
+
+                    if (setter == 1) scoreP1++;
+                    else scoreP2++;
+
+                    if (checkWinner()) return;
+
+                    nextTurn();
+                    return;
+                }
+
+                startTimer(); // restart
+            }
+        }.start();
     }
 
     private String getName(int p) {
@@ -78,6 +123,8 @@ public class GameActivity extends Activity {
     private void handleGuess() {
 
         if (clickSound != null) clickSound.start();
+
+        if (timer != null) timer.cancel(); // ✅ STOP TIMER
 
         String text = input.getText().toString();
         if (text.isEmpty()) return;
@@ -115,7 +162,10 @@ public class GameActivity extends Activity {
             if (checkWinner()) return;
 
             nextTurn();
+            return;
         }
+
+        startTimer(); // ✅ RESTART TIMER
     }
 
     private boolean checkWinner() {
@@ -153,10 +203,23 @@ public class GameActivity extends Activity {
 
     private void openResult(String winner) {
 
+        if (timer != null) timer.cancel(); // ✅ STOP TIMER
+
         Intent i = new Intent(GameActivity.this, ResultActivity.class);
         i.putExtra("winner", winner);
 
         startActivity(i);
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (clickSound != null) clickSound.release();
+        if (winSound != null) winSound.release();
+        if (loseSound != null) loseSound.release();
+
+        if (timer != null) timer.cancel();
     }
 }
