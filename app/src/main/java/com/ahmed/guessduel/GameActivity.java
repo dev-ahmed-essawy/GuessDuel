@@ -84,15 +84,36 @@ public class GameActivity extends Activity {
         for (int id : btns) {
             Button b = findViewById(id);
             b.setOnClickListener(v -> {
+            
+                // ✅ animation
+                v.animate()
+                    .scaleX(0.9f)
+                    .scaleY(0.9f)
+                    .setDuration(50)
+                    .withEndAction(() ->
+                        v.animate().scaleX(1f).scaleY(1f).start()
+                    );
+            
+                // ✅ your original logic
                 if (inputVal.length() < 3) {
                     inputVal.append(b.getText());
                     display.setText(inputVal.toString());
                 }
             });
+
         }
 
         // DELETE
         findViewById(R.id.btnDel).setOnClickListener(v -> {
+            
+                // ✅ animation
+                v.animate()
+                    .scaleX(0.9f)
+                    .scaleY(0.9f)
+                    .setDuration(50)
+                    .withEndAction(() ->
+                        v.animate().scaleX(1f).scaleY(1f).start()
+                    );
             if (inputVal.length() > 0) {
                 inputVal.deleteCharAt(inputVal.length() - 1);
                 display.setText(inputVal.length()==0 ? "0" : inputVal.toString());
@@ -101,6 +122,15 @@ public class GameActivity extends Activity {
 
         // OK (GUESS)
         findViewById(R.id.btnOk).setOnClickListener(v -> {
+            
+                // ✅ animation
+                v.animate()
+                    .scaleX(0.9f)
+                    .scaleY(0.9f)
+                    .setDuration(50)
+                    .withEndAction(() ->
+                        v.animate().scaleX(1f).scaleY(1f).start()
+                    );
 
             if (inputVal.length() == 0) return;
 
