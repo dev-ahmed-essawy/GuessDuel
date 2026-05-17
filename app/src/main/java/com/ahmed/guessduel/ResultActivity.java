@@ -16,18 +16,16 @@ public class ResultActivity extends Activity {
         TextView resultText = findViewById(R.id.resultText);
         Button restartBtn = findViewById(R.id.restartBtn);
 
-        // ✅ Get winner safely
         String winner = getIntent().getStringExtra("winner");
         if (winner == null) {
             winner = "Player";
         }
 
-        // ✅ Show result
         resultText.setText("🏆 " + winner + " WINS!");
 
-        // ✅ Restart game → back to MainActivity
+        // ✅ FIXED HERE
         restartBtn.setOnClickListener(v -> {
-            Intent i = new Intent(ResultActivity.this, MainActivity.class);
+            Intent i = new Intent(ResultActivity.this, ModeActivity.class);
             startActivity(i);
             finish();
         });
