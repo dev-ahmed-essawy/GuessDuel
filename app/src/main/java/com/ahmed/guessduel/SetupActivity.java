@@ -27,13 +27,17 @@ public class SetupActivity extends Activity {
         title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
-            int num = Integer.parseInt(input.getText().toString());
-            if (num < 0 || num > 100) {
-                Toast.makeText(this, "⚠ Pick a number between 0 and 100!" , Toast.LENGTH_SHORT).show();
+
+            String text = input.getText().toString();  // ✅ ADD THIS
+        
+            if (text.isEmpty()) return;
+        
+            int secret = Integer.parseInt(text);
+        
+            if (secret < 0 || secret > 100) {
+                input.setError("0 - 100 only");
                 return;
             }
-
-            int secret = Integer.parseInt(text);
 
             Intent i = new Intent(this, GameActivity.class);
             i.putExtra("secret", num);
@@ -44,6 +48,6 @@ public class SetupActivity extends Activity {
             i.putExtra("scoreP2", scoreP2);
 
             startActivity(i);
-        });
+        });        
     }
 }
