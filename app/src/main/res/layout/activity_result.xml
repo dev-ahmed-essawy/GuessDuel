@@ -8,14 +8,22 @@
     android:gravity="center"
     android:padding="24dp">
 
+    <TextView
+        android:id="@+id/resultText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Winner"
+        android:textSize="24sp"
+        android:layout_marginBottom="20dp" />
+
     <ImageView
         android:id="@+id/trophy"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:src="@android:drawable/star_big_on"
-        android:layout_marginBottom="id:text="Winner"
-        android:textSize="24sp"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginBottom="20dp"
+        android:text="Winner"
+        android:textSize="24sp" />
 
     <Button
         android:id="@+id/restartBtn"
