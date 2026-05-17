@@ -28,16 +28,22 @@ public class SetupActivity extends Activity {
         if (name1 == null) name1 = "Player 1";
         if (name2 == null) name2 = "Player 2";
 
-        // ✅ Detect AI mode
+        // ✅ Detect AI
         boolean isAI = name2.equals("AI");
 
-        // ✅ FIX: In AI mode → player 1 always sets the number
+        // ✅ FIX: handle setter logic
+        final int finalSetter;
+        final String finalName1 = name1;
+        final String finalName2 = name2;
+
         String setterName;
+
         if (isAI) {
-            setter = 1;
-            setterName = name1;
+            finalSetter = 1; // player always sets
+            setterName = finalName1;
         } else {
-            setterName = (setter == 1) ? name1 : name2;
+            finalSetter = setter;
+            setterName = (setter == 1) ? finalName1 : finalName2;
         }
 
         title.setText(setterName + " sets number");
@@ -46,7 +52,6 @@ public class SetupActivity extends Activity {
 
             String text = input.getText().toString().trim();
 
-            // ✅ Empty check
             if (text.isEmpty()) {
                 input.setError("Enter a number!");
                 return;
@@ -54,7 +59,6 @@ public class SetupActivity extends Activity {
 
             int secret;
 
-            // ✅ Safe parsing
             try {
                 secret = Integer.parseInt(text);
             } catch (Exception e) {
@@ -62,20 +66,18 @@ public class SetupActivity extends Activity {
                 return;
             }
 
-            // ✅ Range check
             if (secret < 0 || secret > 100) {
                 input.setError("0 - 100 only");
                 return;
             }
 
-            // ✅ Move to GameActivity
             Intent i = new Intent(SetupActivity.this, GameActivity.class);
 
             i.putExtra("secret", secret);
-            i.putExtra("setter", setter);
+            i.putExtra("setter", finalSetter);   // ✅ FIXED
             i.putExtra("timer", timer);
-            i.putExtra("name1", name1);
-            i.putExtra("name2", name2);
+            i.putExtra("name1", finalName1);     // ✅ FIXED
+            i.putExtra("name2", finalName2);     // ✅ FIXED
             i.putExtra("scoreP1", scoreP1);
             i.putExtra("scoreP2", scoreP2);
 
