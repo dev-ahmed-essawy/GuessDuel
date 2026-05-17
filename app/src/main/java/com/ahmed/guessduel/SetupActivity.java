@@ -14,6 +14,7 @@ public class SetupActivity extends Activity {
 
         TextView title = findViewById(R.id.titleText);
         TextView display = findViewById(R.id.inputDisplay);
+        LinearLayout keypadContainer = findViewById(R.id.keypadContainer);
 
         StringBuilder inputVal = new StringBuilder();
 
@@ -29,7 +30,7 @@ public class SetupActivity extends Activity {
         if (name1 == null) name1 = "Player 1";
         if (name2 == null) name2 = "Player 2";
 
-        // ✅ FIX → create FINAL copies (IMPORTANT)
+        // ✅ FINAL copies
         final String finalName1 = name1;
         final String finalName2 = name2;
         final int finalSetter = setter;
@@ -37,6 +38,40 @@ public class SetupActivity extends Activity {
         final int finalScoreP2 = scoreP2;
         final int finalTimer = timer;
 
+        // ✅ DETECT AI MODE
+        boolean isAI = finalName2.equals("AI");
+
+        // ✅ ✅ ✅ AI SETTER LOGIC (THIS WAS MISSING)
+        if (isAI && finalSetter == 2) {
+
+            title.setText("AI is setting...");
+            display.setText("...");
+
+            keypadContainer.setVisibility(LinearLayout.GONE); // hide keypad
+
+            int aiSecret = (int)(Math.random() * 101);
+
+            display.postDelayed(() -> {
+
+                Intent i = new Intent(SetupActivity.this, GameActivity.class);
+
+                i.putExtra("secret", aiSecret);
+                i.putExtra("setter", 2);
+                i.putExtra("timer", finalTimer);
+                i.putExtra("name1", finalName1);
+                i.putExtra("name2", finalName2);
+                i.putExtra("scoreP1", finalScoreP1);
+                i.putExtra("scoreP2", finalScoreP2);
+
+                startActivity(i);
+                finish();
+
+            }, 1500);
+
+            return; // ✅ STOP normal input
+        }
+
+        // ✅ NORMAL PLAYER SETTING
         title.setText((finalSetter == 1 ? finalName1 : finalName2) + " sets number");
 
         int[] btns = {
@@ -79,8 +114,8 @@ public class SetupActivity extends Activity {
             i.putExtra("secret", secret);
             i.putExtra("setter", finalSetter);
             i.putExtra("timer", finalTimer);
-            i.putExtra("name1", finalName1);   // ✅ FIXED
-            i.putExtra("name2", finalName2);   // ✅ FIXED
+            i.putExtra("name1", finalName1);
+            i.putExtra("name2", finalName2);
             i.putExtra("scoreP1", finalScoreP1);
             i.putExtra("scoreP2", finalScoreP2);
 
