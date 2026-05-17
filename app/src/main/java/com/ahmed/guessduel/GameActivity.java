@@ -14,6 +14,8 @@ public class GameActivity extends Activity {
     int scoreP1, scoreP2;
     int timerSeconds;
 
+    LinearLayout keypadContainer;
+    
     String name1, name2;
 
     final int WIN_SCORE = 5;
@@ -39,6 +41,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        keypadContainer = findViewById(R.id.keypadContainer)
         display = findViewById(R.id.inputDisplay);
         result = findViewById(R.id.resultText);
         scoreText = findViewById(R.id.scoreText);
@@ -158,8 +161,13 @@ public class GameActivity extends Activity {
 
         // ✅ AI turn
         if (isAI && guesser == 2) {
+
+            keypadContainer.setVisibility(View.GONE);  // ❌ hide keypad
             runAI();
+        
         } else {
+        
+            keypadContainer.setVisibility(View.VISIBLE); // ✅ show keypad
             startTimer();
         }
     }
