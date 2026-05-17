@@ -10,11 +10,12 @@
 
     <TextView
         android:id="@+id/resultText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="Winner"
-        android:textSize="24sp"
-        android:layout_marginBottom="20dp" />
+        android:textSize="26sp"
+        android:textColor="#FFD54F"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <ImageView
         android:id="@+id/trophy"
