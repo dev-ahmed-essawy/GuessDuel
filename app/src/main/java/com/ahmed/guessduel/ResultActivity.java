@@ -1,4 +1,4 @@
-package com.ahmed.guessduel;package com.ahmed.guessdu.Activity;
+package com.ahmed.guessduel;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
