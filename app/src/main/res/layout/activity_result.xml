@@ -14,15 +14,16 @@
         android:src="@android:drawable/star_big_on"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:layout_marginBottom="20dpoid:textStyle="bold"
-        android:layout_marginBottom="30dp"/>
+        android:layout_marginBottom="20dp"android:textStyle="bold"
+        android:layout_marginBottom="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <!-- RESTART -->
     <Button
         android:id="@+id/restartBtn"
         android:text="Play Again 🔄"
         android:layout_width="220dp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
-``
