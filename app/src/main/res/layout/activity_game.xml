@@ -14,7 +14,9 @@
         android:text="Score"
         android:textColor="#00E676"
         android:textSize="18sp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <!-- TURN -->
     <TextView
@@ -22,7 +24,9 @@
         android:text="Turn"
         android:textColor="#FFD54F"
         android:textSize="18sp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <!-- LIVES -->
     <TextView
@@ -30,7 +34,9 @@
         android:text="Lives"
         android:textColor="#FF5252"
         android:textSize="16sp"
-        android:layout_marginBottom="15dp"/>
+        android:layout_marginBottom="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
     <!-- INPUT -->
     <EditText
@@ -39,7 +45,7 @@
         android:textColor="#FFFFFF"
         android:textColorHint="#AAAAAA"
         android:layout_width="220dp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- BUTTON -->
     <Button
@@ -47,7 +53,7 @@
         android:text="Guess 🎯"
         android:layout_marginTop="15dp"
         android:layout_width="220dp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
 
     <!-- RESULT -->
     <TextView
@@ -55,6 +61,8 @@
         android:text=""
         android:textColor="#FFFFFF"
         android:textSize="18sp"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
