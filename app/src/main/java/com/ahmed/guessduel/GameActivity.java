@@ -8,7 +8,6 @@ import android.widget.*;
 
 public class GameActivity extends Activity {
 
-
     int secret, lives = 5;
     int setter, guesser;
     int scoreP1, scoreP2;
@@ -28,7 +27,6 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        // UI
         input = findViewById(R.id.input);
         result = findViewById(R.id.resultText);
         scoreText = findViewById(R.id.scoreText);
@@ -36,12 +34,12 @@ public class GameActivity extends Activity {
         livesText = findViewById(R.id.livesText);
         btn = findViewById(R.id.submitBtn);
 
-        // Sounds
+        // ✅ Sounds
         clickSound = MediaPlayer.create(this, R.raw.click);
-        winSound  = MediaPlayer.create(this, R.raw.win);
+        winSound = MediaPlayer.create(this, R.raw.win);
         loseSound = MediaPlayer.create(this, R.raw.lose);
 
-        // Data
+        // ✅ Data
         secret = getIntent().getIntExtra("secret", 0);
         setter = getIntent().getIntExtra("setter", 1);
         scoreP1 = getIntent().getIntExtra("scoreP1", 0);
@@ -59,7 +57,6 @@ public class GameActivity extends Activity {
         btn.setOnClickListener(v -> handleGuess());
     }
 
-    // ✅ Start round
     private void startRound() {
         lives = 5;
         input.setText("");
@@ -69,18 +66,15 @@ public class GameActivity extends Activity {
         updateUI();
     }
 
-    // ✅ Get player name
     private String getName(int p) {
         return (p == 1) ? name1 : name2;
     }
 
-    // ✅ Update UI
     private void updateUI() {
         scoreText.setText(name1 + ": " + scoreP1 + " | " + name2 + ": " + scoreP2);
         livesText.setText("Lives: " + lives);
     }
 
-    // ✅ Handle guess
     private void handleGuess() {
 
         if (clickSound != null) clickSound.start();
@@ -93,19 +87,15 @@ public class GameActivity extends Activity {
         if (g < secret) {
             result.setText("⬆ Higher");
             lives--;
-        }
-        else if (g > secret) {
+        } else if (g > secret) {
             result.setText("⬇ Lower");
             lives--;
-        }
-        else {
-            // ✅ WIN ROUND
+        } else {
+
             if (winSound != null) winSound.start();
 
             if (guesser == 1) scoreP1++;
             else scoreP2++;
-
-            result.setText("✅ " + getName(guesser) + " wins round!");
 
             if (checkWinner()) return;
 
@@ -115,7 +105,6 @@ public class GameActivity extends Activity {
 
         updateUI();
 
-        // ✅ LOSE ROUND
         if (lives <= 0) {
 
             if (loseSound != null) loseSound.start();
@@ -123,37 +112,33 @@ public class GameActivity extends Activity {
             if (setter == 1) scoreP1++;
             else scoreP2++;
 
-            result.setText("💀 " + getName(setter) + " wins round!");
-
             if (checkWinner()) return;
 
             nextTurn();
         }
     }
 
-    // ✅ CHECK GAME WINNER
     private boolean checkWinner() {
 
         if (scoreP1 >= WIN_SCORE) {
-            openResult(name1);   // 👈 IMPORTANT
+            openResult(name1);
             return true;
         }
 
         if (scoreP2 >= WIN_SCORE) {
-            openResult(name2);   // 👈 IMPORTANT
+            openResult(name2);
             return true;
         }
 
         return false;
     }
 
-    // ✅ MOVE TO NEXT TURN
     private void nextTurn() {
 
         int newSetter = guesser;
 
         result.postDelayed(() -> {
-            Intent i = new Intent(this, SetupActivity.class);
+            Intent i = new Intent(GameActivity.this, SetupActivity.class);
             i.putExtra("setter", newSetter);
             i.putExtra("scoreP1", scoreP1);
             i.putExtra("scoreP2", scoreP2);
@@ -166,24 +151,12 @@ public class GameActivity extends Activity {
         }, 1000);
     }
 
-    // ✅ OPEN RESULT SCREEN (🔥 THE IMPORTANT PART)
     private void openResult(String winner) {
 
-        Intent i = new Intent(this, ResultActivity.class);
+        Intent i = new Intent(GameActivity.this, ResultActivity.class);
         i.putExtra("winner", winner);
 
         startActivity(i);
-        finish(); // ✅ prevent going back
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (clickSound != null) clickSound.release();
-        if (winSound != null) winSound.release();
-        if (loseSound != null) loseSound.release();
+        finish();
     }
 }
-
-
