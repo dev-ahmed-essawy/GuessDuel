@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
     android:background="#0D1117"
@@ -8,22 +8,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- TROPHY -->
     <ImageView
         android:id="@+id/trophy"
-        android:src="@android:drawable/star_big_on"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:layout_marginBottom="20dp"android:textStyle="bold"
+        android:layout_marginBottom="20dp"
+        android:src="@android:drawable/star_big_onroid:textSize="28sp"
         android:layout_marginBottom="30dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textColor="#FFD54F" />
 
-    <!-- RESTART -->
     <Button
         android:id="@+id/restartBtn"
-        android:text="Play Again 🔄"
         android:layout_width="220dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Play Again" />
 
 </LinearLayout>
