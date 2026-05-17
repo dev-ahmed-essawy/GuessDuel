@@ -27,27 +27,39 @@ public class SetupActivity extends Activity {
         title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
-
-            String text = input.getText().toString();  // ✅ ADD THIS
         
-            if (text.isEmpty()) return;
+            String text = input.getText().toString().trim();
+            // ✅ EMPTY CHECK
+            if (text.isEmpty()) {
+                input.setError("Enter a number!");
+                return;
+            }
         
-            int secret = Integer.parseInt(text);
+            int secret;
         
+            try {
+                secret = Integer.parseInt(text);
+            } catch (Exception e) {
+                input.setError("Invalid number!");
+                return;
+            }
+        
+            // ✅ RANGE CHECK
             if (secret < 0 || secret > 100) {
                 input.setError("0 - 100 only");
                 return;
             }
-
-            Intent i = new Intent(this, GameActivity.class);
+        
+            Intent i = new Intent(SetupActivity.this, GameActivity.class);
+        
             i.putExtra("secret", secret);
             i.putExtra("setter", setter);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
             i.putExtra("scoreP1", scoreP1);
             i.putExtra("scoreP2", scoreP2);
-
+        
             startActivity(i);
-        });        
+        });
     }
 }
