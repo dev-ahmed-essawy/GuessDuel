@@ -80,14 +80,14 @@ public class GameActivity extends Activity {
             timer.cancel();
         }
 
-        timer = new CountDownTimer(5000, 1000) {
+        timer = new CountDownTimer(15000, 1000) {
 
             @Override
             public void onTick(long millisUntilFinished) {
                 if (!isActive) return;
 
                 if (timerText != null) {
-                    timerText.setText("Time: " + millisUntilFinished / 1000);
+                    timerText.setText("⏳ " + (millisUntilFinished / 1000) + "s");
                 }
             }
 
