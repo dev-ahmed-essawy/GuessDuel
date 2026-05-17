@@ -1,11 +1,13 @@
 package com.ahmed.guessduel;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.*;
 
-public class GameActivity extends Activity {
+public class GameActivity extends AppCompatActivity {
+
 
     int secret, lives = 5;
     int setter, guesser;
