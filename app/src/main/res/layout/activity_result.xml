@@ -27,8 +27,9 @@
 
     <Button
         android:id="@+id/restartBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Restart" />
+        android:text="Restart"
+        android:layout_marginTop="20dp"/>
 
 </LinearLayout>
