@@ -40,7 +40,7 @@ public class SetupActivity extends Activity {
             }
 
             Intent i = new Intent(this, GameActivity.class);
-            i.putExtra("secret", num);
+            i.putExtra("secret", secret);
             i.putExtra("setter", setter);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
