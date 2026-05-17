@@ -25,6 +25,8 @@ public class GameActivity extends Activity {
     TextView result, scoreText, turnText, livesText, timerText;
     Button btn;
 
+    boolean isActive = true; // ✅ control timer safely
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,12 +40,10 @@ public class GameActivity extends Activity {
         timerText = findViewById(R.id.timerText);
         btn = findViewById(R.id.submitBtn);
 
-        // ✅ Sounds
         clickSound = MediaPlayer.create(this, R.raw.click);
         winSound = MediaPlayer.create(this, R.raw.win);
         loseSound = MediaPlayer.create(this, R.raw.lose);
 
-        // ✅ Data
         secret = getIntent().getIntExtra("secret", 0);
         setter = getIntent().getIntExtra("setter", 1);
         scoreP1 = getIntent().getIntExtra("scoreP1", 0);
@@ -69,10 +69,12 @@ public class GameActivity extends Activity {
         turnText.setText(getName(guesser) + " guessing...");
         updateUI();
 
-        startTimer(); // ✅ NEW FEATURE
+        startTimer();
     }
 
     private void startTimer() {
+
+        if (!isActive) return;
 
         if (timer != null) {
             timer.cancel();
@@ -82,19 +84,23 @@ public class GameActivity extends Activity {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                timerText.setText("Time: " + millisUntilFinished / 1000);
+                if (!isActive) return;
+
+                if (timerText != null) {
+                    timerText.setText("Time: " + millisUntilFinished / 1000);
+                }
             }
 
             @Override
             public void onFinish() {
 
+                if (!isActive) return;
+
                 result.setText("⏰ Time's up!");
                 lives--;
-
                 updateUI();
 
                 if (lives <= 0) {
-
                     if (loseSound != null) loseSound.start();
 
                     if (setter == 1) scoreP1++;
@@ -102,13 +108,22 @@ public class GameActivity extends Activity {
 
                     if (checkWinner()) return;
 
+                    cancelTimer(); // ✅ FIX
                     nextTurn();
                     return;
                 }
 
-                startTimer(); // restart
+                // ✅ SAFE RESTART
+                startTimer();
             }
         }.start();
+    }
+
+    private void cancelTimer() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
     private String getName(int p) {
@@ -124,12 +139,19 @@ public class GameActivity extends Activity {
 
         if (clickSound != null) clickSound.start();
 
-        if (timer != null) timer.cancel(); // ✅ STOP TIMER
+        cancelTimer();
 
-        String text = input.getText().toString();
+        String text = input.getText().toString().trim();
         if (text.isEmpty()) return;
 
-        int g = Integer.parseInt(text);
+        int g;
+        try {
+            g = Integer.parseInt(text);
+        } catch (Exception e) {
+            input.setError("Invalid number!");
+            startTimer();
+            return;
+        }
 
         if (g < secret) {
             result.setText("⬆ Higher");
@@ -165,7 +187,7 @@ public class GameActivity extends Activity {
             return;
         }
 
-        startTimer(); // ✅ RESTART TIMER
+        startTimer();
     }
 
     private boolean checkWinner() {
@@ -185,6 +207,9 @@ public class GameActivity extends Activity {
 
     private void nextTurn() {
 
+        cancelTimer(); // ✅ IMPORTANT
+        isActive = false;
+
         int newSetter = guesser;
 
         result.postDelayed(() -> {
@@ -197,13 +222,13 @@ public class GameActivity extends Activity {
 
             startActivity(i);
             finish();
-
         }, 1000);
     }
 
     private void openResult(String winner) {
 
-        if (timer != null) timer.cancel(); // ✅ STOP TIMER
+        cancelTimer();
+        isActive = false;
 
         Intent i = new Intent(GameActivity.this, ResultActivity.class);
         i.putExtra("winner", winner);
@@ -216,10 +241,11 @@ public class GameActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
+        isActive = false;
+        cancelTimer();
+
         if (clickSound != null) clickSound.release();
         if (winSound != null) winSound.release();
         if (loseSound != null) loseSound.release();
-
-        if (timer != null) timer.cancel();
     }
 }
