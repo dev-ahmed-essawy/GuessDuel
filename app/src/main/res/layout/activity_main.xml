@@ -13,7 +13,8 @@
     <ImageView
         android:id="@+id/appIcon"
         android:layout_width="120dp"
-        android:layout_height="120t_height="wrap_content"
+        android:layout_height="120dp"
+        android:layout_height="wrap_content"
         android:text="Guess Duel"
         android:textSize="28sp"
         android:textColor="#FFFFFF"
