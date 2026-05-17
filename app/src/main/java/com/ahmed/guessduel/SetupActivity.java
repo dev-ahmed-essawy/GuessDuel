@@ -27,14 +27,16 @@ public class SetupActivity extends Activity {
         title.setText(setterName + " sets number");
 
         btn.setOnClickListener(v -> {
-
-            String text = input.getText().toString();
-            if (text.isEmpty()) return;
+            int num = Integer.parseInt(input.getText().toString());
+            if (num < 0 || num > 100) {
+                Toast.makeText(this, "Max 100", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             int secret = Integer.parseInt(text);
 
             Intent i = new Intent(this, GameActivity.class);
-            i.putExtra("secret", secret);
+            i.putExtra("secret", num);
             i.putExtra("setter", setter);
             i.putExtra("name1", name1);
             i.putExtra("name2", name2);
