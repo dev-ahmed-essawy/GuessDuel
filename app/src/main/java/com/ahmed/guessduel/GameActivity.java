@@ -61,7 +61,12 @@ public class GameActivity extends Activity {
 
         isAI = name2.equals("AI");
 
-        guesser = (setter == 1) ? 2 : 1;
+        if (isAI) {
+            setter = 1;     // human sets
+            guesser = 2;    // AI guesses ✅
+        } else {
+            guesser = (setter == 1) ? 2 : 1;
+        }
 
         startRound();
 
@@ -269,6 +274,10 @@ public class GameActivity extends Activity {
 
         Intent i = new Intent(GameActivity.this, ResultActivity.class);
         i.putExtra("winner", winner);
+        
+        // ✅ CLEAR STACK
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
         startActivity(i);
         finish();
     }
@@ -287,6 +296,9 @@ public class GameActivity extends Activity {
         i.putExtra("name1", name1);
         i.putExtra("name2", name2);
         i.putExtra("timer", timerSeconds);
+        
+        // ✅ CLEAR STACK
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         startActivity(i);
         finish();
