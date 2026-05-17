@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
     android:background="#0D1117"
-    android:padding="24dp"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:padding="24dp">
 
+    <!-- TROPHY IMAGE -->
     <ImageView
         android:id="@+id/trophy"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:src="@android:drawable/star_big_on"
+        android:layout_marginBottom="20 android:layout_height="wrap_content"
+        android:text="Winner"
         android:textSize="28sp"
-        android:layout_marginBottom="30dp"
-        android:textColor="#FFD54F" />
+        android:textColor="#FFD54F"
+        android:layout_marginBottom="30dp" />
 
+    <!-- RESTART BUTTON -->
     <Button
         android:id="@+id/restartBtn"
         android:layout_width="220dp"
