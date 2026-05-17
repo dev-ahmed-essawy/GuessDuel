@@ -1,11 +1,11 @@
 package com.ahmed.guessduel;
 
-import android.app.Activity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.*;
 
-public class SetupActivity extends Activity {
+public class SetupActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
