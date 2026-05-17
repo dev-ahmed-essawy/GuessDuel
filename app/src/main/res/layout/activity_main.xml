@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
     android:background="#0D1117"
-    android:padding="24dp"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:padding="24dp">
 
+    <!-- APP ICON -->
     <ImageView
         android:id="@+id/appIcon"
         android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@"
+        android:layout_height="120t_height="wrap_content"
+        android:text="Guess Duel"
+        android:textSize="28sp"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="30dp" />
 
+    <!-- PLAYER 1 -->
     <EditText
         android:id="@+id/player1Input"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
         android:hint="Player 1 name" />
 
+    <!-- PLAYER 2 -->
     <EditText
         android:id="@+id/player2Input"
         android:layout_width="220dp"
@@ -29,6 +34,7 @@
         android:hint="Player 2 name"
         android:layout_marginTop="10dp" />
 
+    <!-- START BUTTON -->
     <Button
         android:id="@+id/startBtn"
         android:layout_width="220dp"
