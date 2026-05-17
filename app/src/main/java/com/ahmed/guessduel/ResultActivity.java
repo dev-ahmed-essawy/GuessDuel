@@ -16,12 +16,15 @@ public class ResultActivity extends Activity {
         TextView resultText = findViewById(R.id.resultText);
         Button restartBtn = findViewById(R.id.restartBtn);
 
-        // ✅ SAFE GET
+        // ✅ SAFE INTENT
         String winner = getIntent().getStringExtra("winner");
-        if (winner == null) winner = "Player";
+        if (winner == null) {
+            winner = "Player";
+        }
 
-        resultText.setText("🏆 " + winner + " WINS!");
+        resultText.setText(winner + " WINS!");
 
+        // ✅ SAFE RESTART
         restartBtn.setOnClickListener(v -> {
             Intent i = new Intent(ResultActivity.this, MainActivity.class);
             startActivity(i);
@@ -29,5 +32,3 @@ public class ResultActivity extends Activity {
         });
     }
 }
-``
-
