@@ -13,7 +13,6 @@ public class ResultActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        // ✅ Find views (must exist in XML)
         TextView resultText = findViewById(R.id.resultText);
         Button restartBtn = findViewById(R.id.restartBtn);
 
@@ -26,7 +25,7 @@ public class ResultActivity extends Activity {
         // ✅ Show result
         resultText.setText("🏆 " + winner + " WINS!");
 
-        // ✅ Restart game
+        // ✅ Restart game → back to MainActivity
         restartBtn.setOnClickListener(v -> {
             Intent i = new Intent(ResultActivity.this, MainActivity.class);
             startActivity(i);
