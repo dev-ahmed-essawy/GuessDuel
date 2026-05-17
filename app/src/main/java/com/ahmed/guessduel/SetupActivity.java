@@ -29,7 +29,7 @@ public class SetupActivity extends Activity {
         btn.setOnClickListener(v -> {
             int num = Integer.parseInt(input.getText().toString());
             if (num < 0 || num > 100) {
-                Toast.makeText(this, "Max 100", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "⚠ Pick a number between 0 and 100!" , Toast.LENGTH_SHORT).show();
                 return;
             }
 
