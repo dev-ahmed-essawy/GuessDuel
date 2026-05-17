@@ -1,4 +1,5 @@
-package com.ahmed.guessduel;package com.ahmed android.app.Activity;
+package com.ahmed.guessduel;
+
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
