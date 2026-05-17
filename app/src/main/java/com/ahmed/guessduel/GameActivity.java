@@ -24,6 +24,10 @@ public class GameActivity extends Activity {
     boolean isActive = true;
     boolean isAI = false;
 
+    // ✅ SMART AI RANGE
+    int aiMin = 0;
+    int aiMax = 100;
+
     EditText input;
     TextView result, scoreText, turnText, livesText, timerText;
     Button btn;
@@ -61,9 +65,10 @@ public class GameActivity extends Activity {
 
         isAI = name2.equals("AI");
 
+        // ✅ ROLE LOGIC
         if (isAI) {
-            setter = 1;     // human sets
-            guesser = 2;    // AI guesses ✅
+            // Alternate between player and AI
+            guesser = (setter == 1) ? 2 : 1;
         } else {
             guesser = (setter == 1) ? 2 : 1;
         }
@@ -74,6 +79,7 @@ public class GameActivity extends Activity {
     }
 
     private void startRound() {
+
         lives = 5;
 
         input.setText("");
@@ -87,6 +93,7 @@ public class GameActivity extends Activity {
         turnText.setText(getName(guesser) + " guessing...");
         updateUI();
 
+        // ✅ AI turn
         if (isAI && guesser == 2) {
             runAI();
         } else {
@@ -102,22 +109,16 @@ public class GameActivity extends Activity {
 
         timer = new CountDownTimer(timerSeconds * 1000, 1000) {
 
-            @Override
-            public void onTick(long millisUntilFinished) {
+            public void onTick(long ms) {
+                int s = (int) (ms / 1000);
+                timerText.setText("⏳ " + s + "s");
 
-                if (!isActive) return;
-
-                int seconds = (int) (millisUntilFinished / 1000);
-
-                timerText.setText("⏳ " + seconds + "s");
-
-                if (seconds <= 5)
+                if (s <= 5)
                     timerText.setTextColor(0xFFFF5252);
                 else
                     timerText.setTextColor(0xFFFFFFFF);
             }
 
-            @Override
             public void onFinish() {
 
                 if (!isActive) return;
@@ -160,10 +161,12 @@ public class GameActivity extends Activity {
         if (g < secret) {
             result.setText("⬆ Higher");
             lives--;
-        } else if (g > secret) {
+        }
+        else if (g > secret) {
             result.setText("⬇ Lower");
             lives--;
-        } else {
+        }
+        else {
 
             if (winSound != null) winSound.start();
 
@@ -192,6 +195,7 @@ public class GameActivity extends Activity {
         startTimer();
     }
 
+    // ✅ ✅ SMART AI (binary search)
     private void runAI() {
 
         input.setEnabled(false);
@@ -199,19 +203,28 @@ public class GameActivity extends Activity {
 
         result.postDelayed(() -> {
 
-            int guess = (int) (Math.random() * 101);
+            int guess = (aiMin + aiMax) / 2;
 
             if (guess < secret) {
                 result.setText("AI: " + guess + " ⬆");
+                aiMin = guess + 1;
                 lives--;
-            } else if (guess > secret) {
+            }
+            else if (guess > secret) {
                 result.setText("AI: " + guess + " ⬇");
+                aiMax = guess - 1;
                 lives--;
-            } else {
+            }
+            else {
 
                 if (winSound != null) winSound.start();
 
+                result.setText("AI guessed " + guess + " ✅");
+
                 score(2);
+
+                aiMin = 0;
+                aiMax = 100;
 
                 if (checkWinner()) return;
 
@@ -226,6 +239,9 @@ public class GameActivity extends Activity {
                 if (loseSound != null) loseSound.start();
 
                 score(1);
+
+                aiMin = 0;
+                aiMax = 100;
 
                 if (checkWinner()) return;
 
@@ -274,8 +290,7 @@ public class GameActivity extends Activity {
 
         Intent i = new Intent(GameActivity.this, ResultActivity.class);
         i.putExtra("winner", winner);
-        
-        // ✅ CLEAR STACK
+
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         startActivity(i);
@@ -290,14 +305,14 @@ public class GameActivity extends Activity {
         int newSetter = guesser;
 
         Intent i = new Intent(GameActivity.this, SetupActivity.class);
+
         i.putExtra("setter", newSetter);
         i.putExtra("scoreP1", scoreP1);
         i.putExtra("scoreP2", scoreP2);
         i.putExtra("name1", name1);
         i.putExtra("name2", name2);
         i.putExtra("timer", timerSeconds);
-        
-        // ✅ CLEAR STACK
+
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         startActivity(i);
