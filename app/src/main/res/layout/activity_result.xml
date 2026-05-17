@@ -6,24 +6,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:background="#0D1117"
     android:padding="24dp">
 
-    <!-- TROPHY IMAGE -->
     <ImageView
         android:id="@+id/trophy"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
-        android:text="Winner"
-        android:textSize="28sp"
-        android:textColor="#FFD54F"
-        android:layout_marginBottom="30dp" />
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@android:drawable/star_big_on"
+        android:layout_marginBottom="id:text="Winner"
+        android:textSize="24sp"
+        android:layout_marginBottom="20dp" />
 
-    <!-- RESTART BUTTON -->
     <Button
         android:id="@+id/restartBtn"
-        android:layout_width="220dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Play Again" />
+        android:text="Restart" />
 
 </LinearLayout>
