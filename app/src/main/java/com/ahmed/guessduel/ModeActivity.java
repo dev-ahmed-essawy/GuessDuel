@@ -14,6 +14,12 @@ public class ModeActivity extends Activity {
 
         Button pvp = findViewById(R.id.pvpBtn);
         Button ai = findViewById(R.id.aiBtn);
+        Button btBtn = findViewById(R.id.btnBluetooth);
+        
+        btBtn.setOnClickListener(v -> {
+            Intent i = new Intent(ModeActivity.this, BluetoothActivity.class);
+            startActivity(i);
+        });
 
         pvp.setOnClickListener(v -> openPlayers(false));
         ai.setOnClickListener(v -> openPlayers(true));
