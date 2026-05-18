@@ -2,12 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ahmed.guessduel">
 
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
-
     
     <application
         android:label="Guess Duel"
@@ -19,7 +13,6 @@
         <activity android:name=".DifficultyActivity" />
         <activity android:name=".PlayerActivity" />
         <activity android:name=".ModeActivity" />
-        <activity android:name=".BluetoothActivity" />
 
         <!-- ✅ THIS IS REQUIRED -->
         <activity
