@@ -18,12 +18,13 @@ public class BluetoothActivity extends Activity {
 
     BluetoothAdapter bluetoothAdapter;
     BluetoothSocket socket;
+    BluetoothServerSocket serverSocket;
+
     OutputStream outputStream;
     InputStream inputStream;
 
     TextView statusText;
 
-    // ✅ UUID must be same on both devices
     private final UUID APP_UUID =
             UUID.fromString("12345678-1234-1234-1234-123456789abc");
 
@@ -33,34 +34,31 @@ public class BluetoothActivity extends Activity {
         setContentView(R.layout.activity_bluetooth);
 
         Button enableBtn = findViewById(R.id.enableBtn);
-        Button connectBtn = findViewById(R.id.connectBtn);
-        Button sendBtn = findViewById(R.id.sendBtn);
+        Button serverBtn = findViewById(R.id.connectBtn); // now SERVER
+        Button clientBtn = findViewById(R.id.sendBtn);    // now CLIENT
         statusText = findViewById(R.id.statusText);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // ✅ Runtime permission (ANDROID 12+ FIX)
         checkPermissions();
 
-        // ✅ Enable Bluetooth
         enableBtn.setOnClickListener(v -> {
-            if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
-                Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivity(i);
+            if (!bluetoothAdapter.isEnabled()) {
+                startActivity(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE));
             }
         });
 
-        // ✅ Connect
-        connectBtn.setOnClickListener(v -> connectDevice());
+        // ✅ SERVER BUTTON
+        serverBtn.setText("Start Server");
+        serverBtn.setOnClickListener(v -> startServer());
 
-        // ✅ Send HELLO
-        sendBtn.setOnClickListener(v -> sendMessage("HELLO"));
+        // ✅ CLIENT BUTTON
+        clientBtn.setText("Connect to Device");
+        clientBtn.setOnClickListener(v -> connectClient());
 
-        // ✅ Start listening thread
         new Thread(this::listenForMessages).start();
     }
 
-    // ✅ PERMISSION CHECK (CRITICAL FOR ANDROID 14)
     private void checkPermissions() {
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
@@ -76,56 +74,75 @@ public class BluetoothActivity extends Activity {
         }
     }
 
-    private void connectDevice() {
-        try {
+    // ✅ SERVER MODE
+    private void startServer() {
+        new Thread(() -> {
+            try {
+                serverSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord("GuessDuel", APP_UUID);
 
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-                statusText.setText("Permission required!");
-                return;
+                runOnUiThread(() -> statusText.setText("Waiting for connection..."));
+
+                socket = serverSocket.accept();
+
+                outputStream = socket.getOutputStream();
+                inputStream = socket.getInputStream();
+
+                runOnUiThread(() -> statusText.setText("Client connected ✅"));
+
+            } catch (Exception e) {
+                runOnUiThread(() -> statusText.setText("Server error"));
+                e.printStackTrace();
             }
-
-            Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
-
-            if (devices.size() == 0) {
-                statusText.setText("No paired devices!");
-                return;
-            }
-
-            BluetoothDevice device = devices.iterator().next(); // pick first paired
-
-            socket = device.createRfcommSocketToServiceRecord(APP_UUID);
-            socket.connect();
-
-            outputStream = socket.getOutputStream();
-            inputStream = socket.getInputStream();
-
-            runOnUiThread(() ->
-                    statusText.setText("Connected to " + device.getName())
-            );
-
-        } catch (Exception e) {
-            runOnUiThread(() ->
-                    statusText.setText("Connection failed")
-            );
-            e.printStackTrace();
-        }
+        }).start();
     }
 
+    // ✅ CLIENT MODE
+    private void connectClient() {
+        new Thread(() -> {
+            try {
+                if (ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) return;
+
+                Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
+
+                if (devices.size() == 0) {
+                    runOnUiThread(() -> statusText.setText("No paired device"));
+                    return;
+                }
+
+                BluetoothDevice device = devices.iterator().next();
+
+                socket = device.createRfcommSocketToServiceRecord(APP_UUID);
+                socket.connect();
+
+                outputStream = socket.getOutputStream();
+                inputStream = socket.getInputStream();
+
+                runOnUiThread(() -> statusText.setText("Connected to " + device.getName()));
+
+            } catch (Exception e) {
+                runOnUiThread(() -> statusText.setText("Connection failed"));
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    // ✅ SEND TEST
     private void sendMessage(String msg) {
-        try {
-            if (outputStream != null) {
-                outputStream.write(msg.getBytes());
+        new Thread(() -> {
+            try {
+                if (outputStream != null) {
+                    outputStream.write(msg.getBytes());
 
-                runOnUiThread(() ->
-                        statusText.setText("Sent: " + msg)
-                );
+                    runOnUiThread(() -> statusText.setText("Sent: " + msg));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
+    // ✅ LISTEN
     private void listenForMessages() {
         byte[] buffer = new byte[1024];
 
