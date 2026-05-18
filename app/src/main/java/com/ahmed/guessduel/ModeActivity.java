@@ -14,10 +14,10 @@ public class ModeActivity extends Activity {
 
         Button pvp = findViewById(R.id.pvpBtn);
         Button ai = findViewById(R.id.aiBtn);
-        Button btBtn = findViewById(R.id.btnBluetooth);
-        
-        btBtn.setOnClickListener(v -> {
-            Intent i = new Intent(ModeActivity.this, BluetoothActivity.class);
+        Button wifiBtn = findViewById(R.id.btnWifi);
+
+        wifiBtn.setOnClickListener(v -> {
+            Intent i = new Intent(ModeActivity.this, WifiActivity.class);
             startActivity(i);
         });
 
