@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ahmed.guessduel">
 
-    
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Guess Duel"
         android:icon="@drawable/ic_app">
@@ -13,7 +13,8 @@
         <activity android:name=".DifficultyActivity" />
         <activity android:name=".PlayerActivity" />
         <activity android:name=".ModeActivity" />
-
+        <activity android:name=".WifiActivity"/>
+        
         <!-- ✅ THIS IS REQUIRED -->
         <activity
             android:name=".SplashActivity"
