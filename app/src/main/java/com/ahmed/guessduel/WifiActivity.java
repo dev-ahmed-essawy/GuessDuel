@@ -189,30 +189,32 @@ public class WifiActivity extends Activity {
     private String getLocalIpAddress() {
 
         try {
-
+    
             for (NetworkInterface networkInterface :
-                    Collections.list(NetworkInterface.getNetworkInterfaces())) {
-
+                    java.util.Collections.list(
+                            NetworkInterface.getNetworkInterfaces())) {
+    
                 for (InetAddress address :
-                        Collections.list(networkInterface.getInetAddresses())) {
-
+                        java.util.Collections.list(
+                                networkInterface.getInetAddresses())) {
+    
                     if (!address.isLoopbackAddress()
                             && address instanceof Inet4Address) {
-
+    
                         String ip = address.getHostAddress();
-
-                        // ✅ Prefer local hotspot/WiFi IP
-                        if (ip.startsWith("192.168")) {
+    
+                        // ✅ Ignore localhost only
+                        if (!ip.equals("127.0.0.1")) {
                             return ip;
                         }
                     }
                 }
             }
-
+    
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+    
         return "Unavailable";
     }
 
