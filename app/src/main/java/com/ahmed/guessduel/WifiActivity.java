@@ -1,12 +1,9 @@
-package com.ahmed.guessduel;
-
-import android.app.Activity;
+package com.ahmed.guessduel;package comimport android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.*;
 
 import java.net.*;
-import java.io.*;
 import java.util.Collections;
 
 public class WifiActivity extends Activity {
@@ -23,7 +20,6 @@ public class WifiActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi);
 
-        // ✅ VIEWS
         Button hostBtn = findViewById(R.id.hostBtn);
         Button joinBtn = findViewById(R.id.joinBtn);
 
@@ -37,7 +33,7 @@ public class WifiActivity extends Activity {
         joinBtn.setOnClickListener(v -> connectToHost());
     }
 
-    // ✅ HOST SERVER
+    // ✅ HOST
     private void startServer() {
 
         new Thread(() -> {
@@ -60,8 +56,12 @@ public class WifiActivity extends Activity {
                 NetworkManager.socket =
                         serverSocket.accept();
 
-                // ✅ PREPARE STREAMS
+                // ✅ SETUP STREAMS
                 NetworkManager.setupStreams();
+
+                // ✅ MULTIPLAYER SESSION
+                GameSession.isHost = true;
+                GameSession.isMultiplayer = true;
 
                 runOnUiThread(() -> {
 
@@ -69,7 +69,7 @@ public class WifiActivity extends Activity {
                             "Player connected ✅"
                     );
 
-                    // ✅ OPEN SETUP SCREEN
+                    // ✅ HOST SETS SECRET
                     Intent i = new Intent(
                             WifiActivity.this,
                             SetupActivity.class
@@ -92,7 +92,7 @@ public class WifiActivity extends Activity {
         }).start();
     }
 
-    // ✅ CLIENT CONNECT
+    // ✅ CLIENT
     private void connectToHost() {
 
         new Thread(() -> {
@@ -119,8 +119,12 @@ public class WifiActivity extends Activity {
                 NetworkManager.socket =
                         new Socket(ip, PORT);
 
-                // ✅ PREPARE STREAMS
+                // ✅ SETUP STREAMS
                 NetworkManager.setupStreams();
+
+                // ✅ MULTIPLAYER SESSION
+                GameSession.isHost = false;
+                GameSession.isMultiplayer = true;
 
                 runOnUiThread(() -> {
 
@@ -128,13 +132,11 @@ public class WifiActivity extends Activity {
                             "Connected ✅"
                     );
 
-                    // ✅ OPEN GAME SCREEN
+                    // ✅ CLIENT GOES TO GAME
                     Intent i = new Intent(
                             WifiActivity.this,
                             GameActivity.class
                     );
-
-                    i.putExtra("isHost", false);
 
                     startActivity(i);
                 });
@@ -153,7 +155,7 @@ public class WifiActivity extends Activity {
         }).start();
     }
 
-    // ✅ GET LOCAL HOTSPOT/WIFI IP
+    // ✅ GET LOCAL IP
     private String getLocalIpAddress() {
 
         try {
@@ -187,15 +189,6 @@ public class WifiActivity extends Activity {
         super.onDestroy();
 
         try {
-
-            if (NetworkManager.reader != null)
-                NetworkManager.reader.close();
-
-            if (NetworkManager.writer != null)
-                NetworkManager.writer.close();
-
-            if (NetworkManager.socket != null)
-                NetworkManager.socket.close();
 
             if (serverSocket != null)
                 serverSocket.close();
