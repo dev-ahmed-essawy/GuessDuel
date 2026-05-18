@@ -1,7 +1,6 @@
 package com.ahmed.guessduel;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
@@ -25,12 +24,17 @@ public class AIGameActivity extends Activity {
     StringBuilder inputVal = new StringBuilder();
 
     // ✅ GAME
-    int secret;
+    int secret = -1;
+
     int lives = 5;
     int timerSeconds = 15;
 
     boolean gameOver = false;
-    boolean playerTurn = true;
+
+    // ✅ PHASES
+    boolean playerSetting = true;
+    boolean playerGuessing = false;
+    boolean aiGuessing = false;
 
     CountDownTimer timer;
 
@@ -53,51 +57,62 @@ public class AIGameActivity extends Activity {
 
         keypadContainer = findViewById(R.id.keypadContainer);
 
-        // ✅ RANDOM SECRET
-        secret = random.nextInt(101);
-        timerSeconds = getIntent().getIntExtra("timer", 15);
+        // ✅ TIMER FROM DIFFICULTY
+        timerSeconds = getIntent().getIntExtra(
+                "timer",
+                15
+        );
 
-        // ✅ SETUP
+        // ✅ SETUP KEYPAD
         setupKeypad();
 
-        // ✅ START GAME
-        startPlayerTurn();
+        // ✅ START FIRST PHASE
+        startPlayerSetPhase();
     }
 
-    // ✅ PLAYER TURN
-    private void startPlayerTurn() {
+    // ✅ PLAYER SETS SECRET
+    private void startPlayerSetPhase() {
 
-        if (gameOver)
-            return;
+        playerSetting = true;
+        playerGuessing = false;
+        aiGuessing = false;
 
-        playerTurn = true;
+        inputVal.setLength(0);
+
+        inputDisplay.setText("0");
 
         keypadContainer.setVisibility(View.VISIBLE);
 
-        turnText.setText(
-                "Your Turn - Lives: " + lives
-        );
-
-        resultText.setText("");
-
         setKeypadEnabled(true);
 
-        startTimer();
+        timerText.setText("");
+
+        turnText.setText(
+                "Set Your Secret Number"
+        );
+
+        resultText.setText(
+                "AI will try to guess it"
+        );
+
+        cancelTimer();
     }
 
-    // ✅ AI TURN
-    private void startAITurn() {
+    // ✅ AI GUESSES PLAYER NUMBER
+    private void startAIGuessPhase() {
 
         if (gameOver)
             return;
 
-        playerTurn = false;
+        playerSetting = false;
+        playerGuessing = false;
+        aiGuessing = true;
 
         keypadContainer.setVisibility(View.GONE);
 
-        turnText.setText("AI Thinking...");
+        turnText.setText("AI Guessing...");
 
-        cancelTimer();
+        startTimer();
 
         new Handler().postDelayed(() -> {
 
@@ -105,6 +120,8 @@ public class AIGameActivity extends Activity {
                 return;
 
             int aiGuess = (aiMin + aiMax) / 2;
+
+            cancelTimer();
 
             if (aiGuess < secret) {
 
@@ -116,7 +133,7 @@ public class AIGameActivity extends Activity {
 
                 aiMin = aiGuess + 1;
 
-                startPlayerTurn();
+                startAIGuessPhase();
 
             } else if (aiGuess > secret) {
 
@@ -128,7 +145,7 @@ public class AIGameActivity extends Activity {
 
                 aiMax = aiGuess - 1;
 
-                startPlayerTurn();
+                startAIGuessPhase();
 
             } else {
 
@@ -139,17 +156,48 @@ public class AIGameActivity extends Activity {
                 );
 
                 turnText.setText(
-                        "AI Won 🎉"
+                        "AI Finished!"
                 );
 
-                keypadContainer.setVisibility(
-                        View.GONE
-                );
-                cancelTimer();
-                gameOver = true;
+                // ✅ NEXT ROUND
+                new Handler().postDelayed(() -> {
+
+                    startPlayerGuessPhase();
+
+                }, 2000);
             }
 
         }, 1500);
+    }
+
+    // ✅ AI SETS SECRET
+    private void startPlayerGuessPhase() {
+
+        if (gameOver)
+            return;
+
+        playerSetting = false;
+        playerGuessing = true;
+        aiGuessing = false;
+
+        // ✅ AI SECRET
+        secret = random.nextInt(101);
+
+        inputVal.setLength(0);
+
+        inputDisplay.setText("0");
+
+        keypadContainer.setVisibility(View.VISIBLE);
+
+        setKeypadEnabled(true);
+
+        turnText.setText(
+                "Guess AI Number - Lives: " + lives
+        );
+
+        resultText.setText("");
+
+        startTimer();
     }
 
     // ✅ KEYPAD
@@ -167,9 +215,10 @@ public class AIGameActivity extends Activity {
             Button btn = findViewById(id);
 
             btn.setOnClickListener(v -> {
-                if (gameOver || !playerTurn)
-                  return;
-                // ✅ CLICK ANIMATION
+
+                if (gameOver)
+                    return;
+
                 v.animate()
                         .scaleX(0.9f)
                         .scaleY(0.9f)
@@ -181,7 +230,6 @@ public class AIGameActivity extends Activity {
                                         .start()
                         );
 
-                // ✅ INPUT LIMIT
                 if (inputVal.length() < 3) {
 
                     inputVal.append(
@@ -195,12 +243,12 @@ public class AIGameActivity extends Activity {
             });
         }
 
-        // ✅ DELETE BUTTON
+        // ✅ DELETE
         Button delBtn = findViewById(R.id.btnDel);
 
         delBtn.setOnClickListener(v -> {
 
-            if (gameOver || !playerTurn)
+            if (gameOver)
                 return;
 
             if (inputVal.length() > 0) {
@@ -222,37 +270,50 @@ public class AIGameActivity extends Activity {
             }
         });
 
-        // ✅ OK BUTTON
+        // ✅ OK
         Button okBtn = findViewById(R.id.btnOk);
 
         okBtn.setOnClickListener(v -> {
 
-            if (gameOver || !playerTurn)
+            if (gameOver)
                 return;
 
             if (inputVal.length() == 0)
                 return;
 
-            int guess = Integer.parseInt(
+            int value = Integer.parseInt(
                     inputVal.toString()
             );
 
-            // ✅ RESET INPUT
             inputVal.setLength(0);
 
             inputDisplay.setText("0");
 
-            // ✅ CHECK GUESS
-            checkPlayerGuess(guess);
+            // ✅ PLAYER SET PHASE
+            if (playerSetting) {
+
+                secret = value;
+
+                aiMin = 0;
+                aiMax = 100;
+
+                startAIGuessPhase();
+
+                return;
+            }
+
+            // ✅ PLAYER GUESS PHASE
+            if (playerGuessing) {
+
+                checkPlayerGuess(value);
+            }
         });
     }
 
-    // ✅ CHECK PLAYER GUESS
+    // ✅ PLAYER GUESSES AI NUMBER
     private void checkPlayerGuess(int guess) {
 
         cancelTimer();
-
-        setKeypadEnabled(false);
 
         if (guess < secret) {
 
@@ -268,14 +329,20 @@ public class AIGameActivity extends Activity {
 
         } else {
 
-            resultText.setText("🎉 Correct!");
+            resultText.setText(
+                    "🎉 You Won!"
+            );
 
-            turnText.setText("You Won!");
+            turnText.setText(
+                    "Game Over"
+            );
 
             keypadContainer.setVisibility(
                     View.GONE
             );
+
             cancelTimer();
+
             gameOver = true;
 
             return;
@@ -284,21 +351,31 @@ public class AIGameActivity extends Activity {
         // ✅ PLAYER LOST
         if (lives <= 0) {
 
-            resultText.setText("💀 You Lost!");
+            resultText.setText(
+                    "💀 You Lost!"
+            );
 
-            turnText.setText("Game Over");
+            turnText.setText(
+                    "Game Over"
+            );
 
             keypadContainer.setVisibility(
                     View.GONE
             );
+
             cancelTimer();
+
             gameOver = true;
 
             return;
         }
 
-        // ✅ AI TURN
-        startAITurn();
+        turnText.setText(
+                "Guess AI Number - Lives: "
+                        + lives
+        );
+
+        startTimer();
     }
 
     // ✅ ENABLE / DISABLE KEYPAD
@@ -329,7 +406,8 @@ public class AIGameActivity extends Activity {
         cancelTimer();
 
         timer = new CountDownTimer(
-            timerSeconds * 1000L, 1000
+                timerSeconds * 1000L,
+                1000
         ) {
 
             @Override
@@ -351,11 +429,6 @@ public class AIGameActivity extends Activity {
 
                 lives--;
 
-                turnText.setText(
-                        "Lives: " + lives
-                );
-
-                // ✅ PLAYER LOST
                 if (lives <= 0) {
 
                     resultText.setText(
@@ -369,16 +442,30 @@ public class AIGameActivity extends Activity {
                     keypadContainer.setVisibility(
                             View.GONE
                     );
+
                     cancelTimer();
+
                     gameOver = true;
 
                 } else {
+
+                    turnText.setText(
+                            "Lives: " + lives
+                    );
 
                     resultText.setText(
                             "⏰ Time Up!"
                     );
 
-                    startAITurn();
+                    // ✅ AI PHASE CONTINUES
+                    if (aiGuessing) {
+
+                        startAIGuessPhase();
+
+                    } else if (playerGuessing) {
+
+                        startTimer();
+                    }
                 }
             }
         };
