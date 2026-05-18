@@ -3,11 +3,17 @@ package com.ahmed.guessduel;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import java.util.Random;
 
 public class AIGameActivity extends Activity {
 
+    // ✅ UI
     TextView turnText;
     TextView resultText;
     TextView timerText;
@@ -15,23 +21,30 @@ public class AIGameActivity extends Activity {
 
     LinearLayout keypadContainer;
 
+    // ✅ INPUT
     StringBuilder inputVal = new StringBuilder();
 
-    int secret = 0;
+    // ✅ GAME
+    int secret;
     int lives = 5;
+
+    boolean gameOver = false;
+    boolean playerTurn = true;
 
     CountDownTimer timer;
 
+    // ✅ AI
+    Random random = new Random();
+
     int aiMin = 0;
     int aiMax = 100;
-
-    boolean playerTurn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        // ✅ FIND VIEWS
         turnText = findViewById(R.id.turnText);
         resultText = findViewById(R.id.resultText);
         timerText = findViewById(R.id.timerText);
@@ -40,28 +53,41 @@ public class AIGameActivity extends Activity {
         keypadContainer = findViewById(R.id.keypadContainer);
 
         // ✅ RANDOM SECRET
-        secret = (int)(Math.random() * 101);
+        secret = random.nextInt(101);
 
+        // ✅ SETUP
         setupKeypad();
 
+        // ✅ START GAME
         startPlayerTurn();
     }
 
     // ✅ PLAYER TURN
     private void startPlayerTurn() {
 
+        if (gameOver)
+            return;
+
         playerTurn = true;
 
         keypadContainer.setVisibility(View.VISIBLE);
 
-        turnText.setText("Your Turn");
+        turnText.setText(
+                "Your Turn - Lives: " + lives
+        );
+
         resultText.setText("");
+
+        setKeypadEnabled(true);
 
         startTimer();
     }
 
     // ✅ AI TURN
     private void startAITurn() {
+
+        if (gameOver)
+            return;
 
         playerTurn = false;
 
@@ -71,14 +97,19 @@ public class AIGameActivity extends Activity {
 
         cancelTimer();
 
-        new android.os.Handler().postDelayed(() -> {
+        new Handler().postDelayed(() -> {
+
+            if (gameOver)
+                return;
 
             int aiGuess = (aiMin + aiMax) / 2;
 
             if (aiGuess < secret) {
 
                 resultText.setText(
-                        "AI guessed " + aiGuess + " ⬆"
+                        "AI guessed "
+                                + aiGuess
+                                + " ⬆ Higher"
                 );
 
                 aiMin = aiGuess + 1;
@@ -88,7 +119,9 @@ public class AIGameActivity extends Activity {
             } else if (aiGuess > secret) {
 
                 resultText.setText(
-                        "AI guessed " + aiGuess + " ⬇"
+                        "AI guessed "
+                                + aiGuess
+                                + " ⬇ Lower"
                 );
 
                 aiMax = aiGuess - 1;
@@ -98,12 +131,20 @@ public class AIGameActivity extends Activity {
             } else {
 
                 resultText.setText(
-                        "AI WON 🎉"
+                        "AI guessed "
+                                + aiGuess
+                                + " ✅ Correct!"
                 );
 
-                turnText.setText("Game Over");
+                turnText.setText(
+                        "AI Won 🎉"
+                );
 
-                keypadContainer.setVisibility(View.GONE);
+                keypadContainer.setVisibility(
+                        View.GONE
+                );
+                cancelTimer();
+                gameOver = true;
             }
 
         }, 1500);
@@ -112,19 +153,21 @@ public class AIGameActivity extends Activity {
     // ✅ KEYPAD
     private void setupKeypad() {
 
-        int[] btns = {
+        int[] buttons = {
                 R.id.btn0, R.id.btn1, R.id.btn2,
                 R.id.btn3, R.id.btn4, R.id.btn5,
                 R.id.btn6, R.id.btn7, R.id.btn8,
                 R.id.btn9
         };
 
-        for (int id : btns) {
+        for (int id : buttons) {
 
-            Button b = findViewById(id);
+            Button btn = findViewById(id);
 
-            b.setOnClickListener(v -> {
-
+            btn.setOnClickListener(v -> {
+                if (gameOver || !playerTurn)
+                  return;
+                // ✅ CLICK ANIMATION
                 v.animate()
                         .scaleX(0.9f)
                         .scaleY(0.9f)
@@ -136,9 +179,12 @@ public class AIGameActivity extends Activity {
                                         .start()
                         );
 
+                // ✅ INPUT LIMIT
                 if (inputVal.length() < 3) {
 
-                    inputVal.append(b.getText());
+                    inputVal.append(
+                            btn.getText()
+                    );
 
                     inputDisplay.setText(
                             inputVal.toString()
@@ -147,8 +193,13 @@ public class AIGameActivity extends Activity {
             });
         }
 
-        // ✅ DELETE
-        findViewById(R.id.btnDel).setOnClickListener(v -> {
+        // ✅ DELETE BUTTON
+        Button delBtn = findViewById(R.id.btnDel);
+
+        delBtn.setOnClickListener(v -> {
+
+            if (gameOver || !playerTurn)
+                return;
 
             if (inputVal.length() > 0) {
 
@@ -170,9 +221,185 @@ public class AIGameActivity extends Activity {
         });
 
         // ✅ OK BUTTON
-        findViewById(R.id.btnOk).setOnClickListener(v -> {
+        Button okBtn = findViewById(R.id.btnOk);
 
-            if (!playerTurn)
+        okBtn.setOnClickListener(v -> {
+
+            if (gameOver || !playerTurn)
                 return;
 
             if (inputVal.length() == 0)
+                return;
+
+            int guess = Integer.parseInt(
+                    inputVal.toString()
+            );
+
+            // ✅ RESET INPUT
+            inputVal.setLength(0);
+
+            inputDisplay.setText("0");
+
+            // ✅ CHECK GUESS
+            checkPlayerGuess(guess);
+        });
+    }
+
+    // ✅ CHECK PLAYER GUESS
+    private void checkPlayerGuess(int guess) {
+
+        cancelTimer();
+
+        setKeypadEnabled(false);
+
+        if (guess < secret) {
+
+            resultText.setText("⬆ Higher");
+
+            lives--;
+
+        } else if (guess > secret) {
+
+            resultText.setText("⬇ Lower");
+
+            lives--;
+
+        } else {
+
+            resultText.setText("🎉 Correct!");
+
+            turnText.setText("You Won!");
+
+            keypadContainer.setVisibility(
+                    View.GONE
+            );
+            cancelTimer();
+            gameOver = true;
+
+            return;
+        }
+
+        // ✅ PLAYER LOST
+        if (lives <= 0) {
+
+            resultText.setText("💀 You Lost!");
+
+            turnText.setText("Game Over");
+
+            keypadContainer.setVisibility(
+                    View.GONE
+            );
+            cancelTimer();
+            gameOver = true;
+
+            return;
+        }
+
+        // ✅ AI TURN
+        startAITurn();
+    }
+
+    // ✅ ENABLE / DISABLE KEYPAD
+    private void setKeypadEnabled(boolean enabled) {
+
+        int[] buttons = {
+                R.id.btn0, R.id.btn1, R.id.btn2,
+                R.id.btn3, R.id.btn4, R.id.btn5,
+                R.id.btn6, R.id.btn7, R.id.btn8,
+                R.id.btn9,
+                R.id.btnDel,
+                R.id.btnOk
+        };
+
+        for (int id : buttons) {
+
+            View v = findViewById(id);
+
+            if (v != null) {
+                v.setEnabled(enabled);
+            }
+        }
+    }
+
+    // ✅ TIMER
+    private void startTimer() {
+
+        cancelTimer();
+
+        timer = new CountDownTimer(
+                15000,
+                1000
+        ) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+                int sec = (int)
+                        (millisUntilFinished / 1000);
+
+                timerText.setText(
+                        "⏳ " + sec + "s"
+                );
+            }
+
+            @Override
+            public void onFinish() {
+
+                if (gameOver)
+                    return;
+
+                lives--;
+
+                turnText.setText(
+                        "Lives: " + lives
+                );
+
+                // ✅ PLAYER LOST
+                if (lives <= 0) {
+
+                    resultText.setText(
+                            "💀 You Lost!"
+                    );
+
+                    turnText.setText(
+                            "Game Over"
+                    );
+
+                    keypadContainer.setVisibility(
+                            View.GONE
+                    );
+                    cancelTimer();
+                    gameOver = true;
+
+                } else {
+
+                    resultText.setText(
+                            "⏰ Time Up!"
+                    );
+
+                    startAITurn();
+                }
+            }
+        };
+
+        timer.start();
+    }
+
+    // ✅ CANCEL TIMER
+    private void cancelTimer() {
+
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
+
+    // ✅ CLEANUP
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        gameOver = true;
+
+        cancelTimer();
+    }
+}
