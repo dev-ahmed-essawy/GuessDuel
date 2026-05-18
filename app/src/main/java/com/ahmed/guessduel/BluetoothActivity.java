@@ -1,11 +1,13 @@
 package com.ahmed.guessduel;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.*;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.*;
+import androidx.core.app.ActivityCompat;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,7 +23,7 @@ public class BluetoothActivity extends Activity {
 
     TextView statusText;
 
-    // same UUID for both devices
+    // ✅ UUID must be same on both devices
     private final UUID APP_UUID =
             UUID.fromString("12345678-1234-1234-1234-123456789abc");
 
@@ -37,7 +39,10 @@ public class BluetoothActivity extends Activity {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // Enable Bluetooth
+        // ✅ Runtime permission (ANDROID 12+ FIX)
+        checkPermissions();
+
+        // ✅ Enable Bluetooth
         enableBtn.setOnClickListener(v -> {
             if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
                 Intent i = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -45,18 +50,41 @@ public class BluetoothActivity extends Activity {
             }
         });
 
-        // Connect to first paired device
+        // ✅ Connect
         connectBtn.setOnClickListener(v -> connectDevice());
 
-        // Send test message
+        // ✅ Send HELLO
         sendBtn.setOnClickListener(v -> sendMessage("HELLO"));
 
-        // Listen for incoming messages
+        // ✅ Start listening thread
         new Thread(this::listenForMessages).start();
+    }
+
+    // ✅ PERMISSION CHECK (CRITICAL FOR ANDROID 14)
+    private void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_SCAN
+                    },
+                    1
+            );
+        }
     }
 
     private void connectDevice() {
         try {
+
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                statusText.setText("Permission required!");
+                return;
+            }
+
             Set<BluetoothDevice> devices = bluetoothAdapter.getBondedDevices();
 
             if (devices.size() == 0) {
@@ -64,7 +92,7 @@ public class BluetoothActivity extends Activity {
                 return;
             }
 
-            BluetoothDevice device = devices.iterator().next(); // pick first
+            BluetoothDevice device = devices.iterator().next(); // pick first paired
 
             socket = device.createRfcommSocketToServiceRecord(APP_UUID);
             socket.connect();
@@ -72,10 +100,14 @@ public class BluetoothActivity extends Activity {
             outputStream = socket.getOutputStream();
             inputStream = socket.getInputStream();
 
-            statusText.setText("Connected to " + device.getName());
+            runOnUiThread(() ->
+                    statusText.setText("Connected to " + device.getName())
+            );
 
         } catch (Exception e) {
-            statusText.setText("Connection failed");
+            runOnUiThread(() ->
+                    statusText.setText("Connection failed")
+            );
             e.printStackTrace();
         }
     }
@@ -84,7 +116,10 @@ public class BluetoothActivity extends Activity {
         try {
             if (outputStream != null) {
                 outputStream.write(msg.getBytes());
-                statusText.setText("Sent: " + msg);
+
+                runOnUiThread(() ->
+                        statusText.setText("Sent: " + msg)
+                );
             }
         } catch (Exception e) {
             e.printStackTrace();
