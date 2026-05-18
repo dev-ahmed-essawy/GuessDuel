@@ -1,36 +1,43 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="#0D1117"
-    android:gravity="center"
-    android:orientation="vertical"
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#0D1117">
 
+    <!-- TITLE -->
     <TextView
-        android:text="Select Mode"
-        android:textSize="24sp"
-        android:textColor="#FFD54F"
-        android:layout_marginBottom="20dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    
-    <Button
-    android:id="@+id/btnWifi"
-    android:text="WiFi Multiplayer"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"/>
-
-    <Button
-        android:id="@+id/pvpBtn"
-        android:text="2 Players"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"/>
-
-    <Button
-        android:id="@+id/aiBtn"
-        android:text="Play vs AI"
-        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"/>
+        android:text="Guess Duel"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="#FFD54F"
+        android:layout_marginBottom="50dp"/>
+
+    <!-- AI MODE -->
+    <Button
+        android:id="@+id/btnAI"
+        android:layout_width="240dp"
+        android:layout_height="65dp"
+        android:text="Single Player"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#00C853"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- WIFI MODE -->
+    <Button
+        android:id="@+id/btnWifi"
+        android:layout_width="240dp"
+        android:layout_height="65dp"
+        android:text="WiFi Multiplayer"
+        android:textSize="20sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#1F6FEB"/>
 
 </LinearLayout>
