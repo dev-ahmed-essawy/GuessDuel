@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"/>
     
     <Button
-    android:id="@+id/btnBluetooth"
-    android:text="Bluetooth Multiplayer"
+    android:id="@+id/btnWifi"
+    android:text="WiFi Multiplayer"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="16dp"/>
