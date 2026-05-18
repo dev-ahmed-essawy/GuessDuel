@@ -1,11 +1,11 @@
 package com.ahmed.guessduel;
 
 import android.app.Activity;
-import android.os.Bundle;
-import android.widget.*;
-
 import java.io.*;
+import android.os.Bundle;
 import java.net.*;
+import android.widget.*;
+import java.util.Collections;
 
 public class WifiActivity extends Activity {
 
@@ -17,6 +17,8 @@ public class WifiActivity extends Activity {
 
     TextView statusText;
     EditText ipInput;
+
+    boolean running = true;
 
     final int PORT = 5000;
 
@@ -32,34 +34,40 @@ public class WifiActivity extends Activity {
         statusText = findViewById(R.id.statusText);
         ipInput = findViewById(R.id.ipInput);
 
-        // ✅ HOST
+        // ✅ HOST GAME
         hostBtn.setOnClickListener(v -> startServer());
 
-        // ✅ JOIN
+        // ✅ JOIN GAME
         joinBtn.setOnClickListener(v -> connectToHost());
 
-        // ✅ SEND
+        // ✅ SEND TEST MESSAGE
         sendBtn.setOnClickListener(v -> sendMessage("HELLO"));
-
-        // ✅ LISTEN
-        new Thread(this::listenForMessages).start();
     }
 
     // ✅ START SERVER
     private void startServer() {
 
         new Thread(() -> {
+
             try {
 
-                serverSocket = new ServerSocket(PORT);
+                String hostIP = getLocalIpAddress();
 
                 runOnUiThread(() ->
-                        statusText.setText("Waiting for player...")
+                        statusText.setText(
+                                "Host IP: " + hostIP +
+                                "\nWaiting for player..."
+                        )
                 );
+
+                serverSocket = new ServerSocket(PORT);
 
                 socket = serverSocket.accept();
 
                 setupStreams();
+
+                // ✅ START LISTENING AFTER CONNECTION
+                new Thread(this::listenForMessages).start();
 
                 runOnUiThread(() ->
                         statusText.setText("Player connected ✅")
@@ -73,10 +81,11 @@ public class WifiActivity extends Activity {
 
                 e.printStackTrace();
             }
+
         }).start();
     }
 
-    // ✅ CONNECT CLIENT
+    // ✅ CONNECT TO HOST
     private void connectToHost() {
 
         new Thread(() -> {
@@ -85,9 +94,21 @@ public class WifiActivity extends Activity {
 
                 String ip = ipInput.getText().toString().trim();
 
+                if (ip.isEmpty()) {
+
+                    runOnUiThread(() ->
+                            statusText.setText("Enter host IP!")
+                    );
+
+                    return;
+                }
+
                 socket = new Socket(ip, PORT);
 
                 setupStreams();
+
+                // ✅ START LISTENING AFTER CONNECTION
+                new Thread(this::listenForMessages).start();
 
                 runOnUiThread(() ->
                         statusText.setText("Connected ✅")
@@ -101,10 +122,11 @@ public class WifiActivity extends Activity {
 
                 e.printStackTrace();
             }
+
         }).start();
     }
 
-    // ✅ STREAMS
+    // ✅ SETUP STREAMS
     private void setupStreams() throws Exception {
 
         writer = new PrintWriter(
@@ -140,10 +162,10 @@ public class WifiActivity extends Activity {
         }).start();
     }
 
-    // ✅ RECEIVE MESSAGE
+    // ✅ RECEIVE MESSAGES
     private void listenForMessages() {
 
-        while (true) {
+        while (running) {
 
             try {
 
@@ -161,5 +183,60 @@ public class WifiActivity extends Activity {
 
             } catch (Exception ignored) {}
         }
+    }
+
+    // ✅ GET LOCAL WIFI/HOTSPOT IP
+    private String getLocalIpAddress() {
+
+        try {
+
+            for (NetworkInterface networkInterface :
+                    Collections.list(NetworkInterface.getNetworkInterfaces())) {
+
+                for (InetAddress address :
+                        Collections.list(networkInterface.getInetAddresses())) {
+
+                    if (!address.isLoopbackAddress()
+                            && address instanceof Inet4Address) {
+
+                        String ip = address.getHostAddress();
+
+                        // ✅ Prefer local hotspot/WiFi IP
+                        if (ip.startsWith("192.168")) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "Unavailable";
+    }
+
+    // ✅ CLEANUP
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        running = false;
+
+        try {
+
+            if (reader != null)
+                reader.close();
+
+            if (writer != null)
+                writer.close();
+
+            if (socket != null)
+                socket.close();
+
+            if (serverSocket != null)
+                serverSocket.close();
+
+        } catch (Exception ignored) {}
     }
 }
