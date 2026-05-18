@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import java.util.Random;
 
 public class AIGameActivity extends Activity {
@@ -27,13 +26,17 @@ public class AIGameActivity extends Activity {
     // ✅ GAME
     int secret = -1;
 
-    int lives = 5;
     int timerSeconds = 15;
+
+    int currentLives = 5;
+
+    int playerScore = 0;
+    int aiScore = 0;
 
     boolean gameOver = false;
 
     // ✅ PHASES
-    boolean playerSetting = true;
+    boolean playerSetting = false;
     boolean playerGuessing = false;
     boolean aiGuessing = false;
 
@@ -48,6 +51,7 @@ public class AIGameActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_game);
 
         // ✅ FIND VIEWS
@@ -64,10 +68,10 @@ public class AIGameActivity extends Activity {
                 15
         );
 
-        // ✅ SETUP KEYPAD
+        // ✅ SETUP
         setupKeypad();
 
-        // ✅ START FIRST PHASE
+        // ✅ START FIRST ROUND
         startPlayerSetPhase();
     }
 
@@ -78,28 +82,33 @@ public class AIGameActivity extends Activity {
         playerGuessing = false;
         aiGuessing = false;
 
+        currentLives = 5;
+
         inputVal.setLength(0);
 
         inputDisplay.setText("0");
 
-        keypadContainer.setVisibility(View.VISIBLE);
-
-        setKeypadEnabled(true);
+        keypadContainer.setVisibility(
+                View.VISIBLE
+        );
 
         timerText.setText("");
 
         turnText.setText(
-                "Set Your Secret Number"
+                "Set Number For AI"
         );
 
         resultText.setText(
-                "AI will try to guess it"
+                "Player: "
+                        + playerScore
+                        + " | AI: "
+                        + aiScore
         );
 
         cancelTimer();
     }
 
-    // ✅ AI GUESSES PLAYER NUMBER
+    // ✅ AI GUESSES
     private void startAIGuessPhase() {
 
         if (gameOver)
@@ -109,9 +118,14 @@ public class AIGameActivity extends Activity {
         playerGuessing = false;
         aiGuessing = true;
 
-        keypadContainer.setVisibility(View.GONE);
+        keypadContainer.setVisibility(
+                View.GONE
+        );
 
-        turnText.setText("AI Guessing...");
+        turnText.setText(
+                "AI Guessing - Lives: "
+                        + currentLives
+        );
 
         startTimer();
 
@@ -120,9 +134,9 @@ public class AIGameActivity extends Activity {
             if (gameOver)
                 return;
 
-            int aiGuess = (aiMin + aiMax) / 2;
-
             cancelTimer();
+
+            int aiGuess = (aiMin + aiMax) / 2;
 
             if (aiGuess < secret) {
 
@@ -134,7 +148,7 @@ public class AIGameActivity extends Activity {
 
                 aiMin = aiGuess + 1;
 
-                startAIGuessPhase();
+                currentLives--;
 
             } else if (aiGuess > secret) {
 
@@ -146,7 +160,7 @@ public class AIGameActivity extends Activity {
 
                 aiMax = aiGuess - 1;
 
-                startAIGuessPhase();
+                currentLives--;
 
             } else {
 
@@ -156,17 +170,51 @@ public class AIGameActivity extends Activity {
                                 + " ✅ Correct!"
                 );
 
-                turnText.setText(
-                        "AI Finished!"
-                );
+                aiScore++;
 
-                // ✅ NEXT ROUND
+                checkMatchWinner();
+
+                if (gameOver)
+                    return;
+
                 new Handler().postDelayed(() -> {
 
                     startPlayerGuessPhase();
 
                 }, 2000);
+
+                return;
             }
+
+            // ✅ AI LOST ROUND
+            if (currentLives <= 0) {
+
+                resultText.setText(
+                        "AI Failed 💀"
+                );
+
+                playerScore++;
+
+                checkMatchWinner();
+
+                if (gameOver)
+                    return;
+
+                new Handler().postDelayed(() -> {
+
+                    startPlayerGuessPhase();
+
+                }, 2000);
+
+                return;
+            }
+
+            turnText.setText(
+                    "AI Guessing - Lives: "
+                            + currentLives
+            );
+
+            startAIGuessPhase();
 
         }, 1500);
     }
@@ -181,6 +229,8 @@ public class AIGameActivity extends Activity {
         playerGuessing = true;
         aiGuessing = false;
 
+        currentLives = 5;
+
         // ✅ AI SECRET
         secret = random.nextInt(101);
 
@@ -188,17 +238,23 @@ public class AIGameActivity extends Activity {
 
         inputDisplay.setText("0");
 
-        keypadContainer.setVisibility(View.VISIBLE);
-
-        setKeypadEnabled(true);
-
-        turnText.setText(
-                "Guess AI Number - Lives: " + lives
+        keypadContainer.setVisibility(
+                View.VISIBLE
         );
 
-        resultText.setText("");
+        timerText.setText("");
 
-        startTimer();
+        turnText.setText(
+                "Guess AI Number - Lives: "
+                        + currentLives
+        );
+
+        resultText.setText(
+                "Player: "
+                        + playerScore
+                        + " | AI: "
+                        + aiScore
+        );
     }
 
     // ✅ KEYPAD
@@ -290,7 +346,7 @@ public class AIGameActivity extends Activity {
 
             inputDisplay.setText("0");
 
-            // ✅ PLAYER SET PHASE
+            // ✅ PLAYER SETS
             if (playerSetting) {
 
                 secret = value;
@@ -303,7 +359,7 @@ public class AIGameActivity extends Activity {
                 return;
             }
 
-            // ✅ PLAYER GUESS PHASE
+            // ✅ PLAYER GUESSES
             if (playerGuessing) {
 
                 checkPlayerGuess(value);
@@ -314,91 +370,122 @@ public class AIGameActivity extends Activity {
     // ✅ PLAYER GUESSES AI NUMBER
     private void checkPlayerGuess(int guess) {
 
-        cancelTimer();
+        startTimer();
 
         if (guess < secret) {
 
-            resultText.setText("⬆ Higher");
+            resultText.setText(
+                    "⬆ Higher"
+            );
 
-            lives--;
+            currentLives--;
 
         } else if (guess > secret) {
 
-            resultText.setText("⬇ Lower");
+            resultText.setText(
+                    "⬇ Lower"
+            );
 
-            lives--;
+            currentLives--;
 
         } else {
 
             resultText.setText(
-                    "🎉 You Won!"
+                    "🎉 Correct!"
             );
 
-            turnText.setText(
-                    "Game Over"
-            );
+            playerScore++;
 
-            keypadContainer.setVisibility(
-                    View.GONE
-            );
+            checkMatchWinner();
 
-            cancelTimer();
+            if (gameOver)
+                return;
 
-            gameOver = true;
+            new Handler().postDelayed(() -> {
+
+                startPlayerSetPhase();
+
+            }, 2000);
 
             return;
         }
 
-        // ✅ PLAYER LOST
-        if (lives <= 0) {
+        // ✅ PLAYER LOST ROUND
+        if (currentLives <= 0) {
 
             resultText.setText(
-                    "💀 You Lost!"
+                    "💀 You Failed!"
             );
 
-            turnText.setText(
-                    "Game Over"
-            );
+            aiScore++;
 
-            keypadContainer.setVisibility(
-                    View.GONE
-            );
+            checkMatchWinner();
 
-            cancelTimer();
+            if (gameOver)
+                return;
 
-            gameOver = true;
+            new Handler().postDelayed(() -> {
+
+                startPlayerSetPhase();
+
+            }, 2000);
 
             return;
         }
 
         turnText.setText(
                 "Guess AI Number - Lives: "
-                        + lives
+                        + currentLives
         );
-
-        startTimer();
     }
 
-    // ✅ ENABLE / DISABLE KEYPAD
-    private void setKeypadEnabled(boolean enabled) {
+    // ✅ CHECK FINAL WINNER
+    private void checkMatchWinner() {
 
-        int[] buttons = {
-                R.id.btn0, R.id.btn1, R.id.btn2,
-                R.id.btn3, R.id.btn4, R.id.btn5,
-                R.id.btn6, R.id.btn7, R.id.btn8,
-                R.id.btn9,
-                R.id.btnDel,
-                R.id.btnOk
-        };
+        if (playerScore >= 5) {
 
-        for (int id : buttons) {
+            openResultScreen(
+                    "PLAYER WON!"
+            );
 
-            View v = findViewById(id);
+        } else if (aiScore >= 5) {
 
-            if (v != null) {
-                v.setEnabled(enabled);
-            }
+            openResultScreen(
+                    "AI WON!"
+            );
         }
+    }
+
+    // ✅ RESULT SCREEN
+    private void openResultScreen(String winner) {
+
+        gameOver = true;
+
+        cancelTimer();
+
+        Intent i = new Intent(
+                AIGameActivity.this,
+                ResultActivity.class
+        );
+
+        i.putExtra(
+                "winner",
+                winner
+        );
+
+        i.putExtra(
+                "playerScore",
+                playerScore
+        );
+
+        i.putExtra(
+                "aiScore",
+                aiScore
+        );
+
+        startActivity(i);
+
+        finish();
     }
 
     // ✅ TIMER
@@ -428,42 +515,61 @@ public class AIGameActivity extends Activity {
                 if (gameOver)
                     return;
 
-                lives--;
+                currentLives--;
 
-                if (lives <= 0) {
-
-                    resultText.setText(
-                            "💀 You Lost!"
-                    );
-
-                    turnText.setText(
-                            "Game Over"
-                    );
-
-                    keypadContainer.setVisibility(
-                            View.GONE
-                    );
-
-                    cancelTimer();
-
-                    gameOver = true;
-
-                } else {
-
-                    turnText.setText(
-                            "Lives: " + lives
-                    );
+                // ✅ AI TURN
+                if (aiGuessing) {
 
                     resultText.setText(
-                            "⏰ Time Up!"
+                            "⏰ AI Time Up!"
                     );
 
-                    // ✅ AI PHASE CONTINUES
-                    if (aiGuessing) {
+                    if (currentLives <= 0) {
+
+                        playerScore++;
+
+                        checkMatchWinner();
+
+                        if (gameOver)
+                            return;
+
+                        startPlayerGuessPhase();
+
+                    } else {
+
+                        turnText.setText(
+                                "AI Guessing - Lives: "
+                                        + currentLives
+                        );
 
                         startAIGuessPhase();
+                    }
+                }
 
-                    } else if (playerGuessing) {
+                // ✅ PLAYER TURN
+                else if (playerGuessing) {
+
+                    resultText.setText(
+                            "⏰ Your Time Up!"
+                    );
+
+                    if (currentLives <= 0) {
+
+                        aiScore++;
+
+                        checkMatchWinner();
+
+                        if (gameOver)
+                            return;
+
+                        startPlayerSetPhase();
+
+                    } else {
+
+                        turnText.setText(
+                                "Guess AI Number - Lives: "
+                                        + currentLives
+                        );
 
                         startTimer();
                     }
