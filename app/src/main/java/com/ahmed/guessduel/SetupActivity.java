@@ -1,125 +1,133 @@
 package com.ahmed.guessduel;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Intent;import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.*;
 
 public class SetupActivity extends Activity {
+
+    TextView titleText;
+    TextView inputDisplay;
+
+    LinearLayout keypadContainer;
+
+    StringBuilder inputVal = new StringBuilder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setup);
 
-        TextView title = findViewById(R.id.titleText);
-        TextView display = findViewById(R.id.inputDisplay);
-        LinearLayout keypadContainer = findViewById(R.id.keypadContainer);
+        // ✅ VIEWS
+        titleText = findViewById(R.id.titleText);
+        inputDisplay = findViewById(R.id.inputDisplay);
 
-        StringBuilder inputVal = new StringBuilder();
+        keypadContainer = findViewById(R.id.keypadContainer);
 
-        int setter = getIntent().getIntExtra("setter", 1);
-        int timer = getIntent().getIntExtra("timer", 15);
+        titleText.setText("Set Secret Number");
 
-        String name1 = getIntent().getStringExtra("name1");
-        String name2 = getIntent().getStringExtra("name2");
+        setupKeypad();
+    }
 
-        int scoreP1 = getIntent().getIntExtra("scoreP1", 0);
-        int scoreP2 = getIntent().getIntExtra("scoreP2", 0);
-
-        if (name1 == null) name1 = "Player 1";
-        if (name2 == null) name2 = "Player 2";
-
-        // ✅ FINAL copies
-        final String finalName1 = name1;
-        final String finalName2 = name2;
-        final int finalSetter = setter;
-        final int finalScoreP1 = scoreP1;
-        final int finalScoreP2 = scoreP2;
-        final int finalTimer = timer;
-
-        // ✅ DETECT AI MODE
-        boolean isAI = finalName2.equals("AI");
-
-        // ✅ ✅ ✅ AI SETTER LOGIC (THIS WAS MISSING)
-        if (isAI && finalSetter == 2) {
-
-            title.setText("AI is setting...");
-            display.setText("...");
-
-            keypadContainer.setVisibility(LinearLayout.GONE); // hide keypad
-
-            int aiSecret = (int)(Math.random() * 101);
-
-            display.postDelayed(() -> {
-
-                Intent i = new Intent(SetupActivity.this, GameActivity.class);
-
-                i.putExtra("secret", aiSecret);
-                i.putExtra("setter", 2);
-                i.putExtra("timer", finalTimer);
-                i.putExtra("name1", finalName1);
-                i.putExtra("name2", finalName2);
-                i.putExtra("scoreP1", finalScoreP1);
-                i.putExtra("scoreP2", finalScoreP2);
-
-                startActivity(i);
-                finish();
-
-            }, 1500);
-
-            return; // ✅ STOP normal input
-        }
-
-        // ✅ NORMAL PLAYER SETTING
-        title.setText((finalSetter == 1 ? finalName1 : finalName2) + " sets number");
+    // ✅ KEYPAD SETUP
+    private void setupKeypad() {
 
         int[] btns = {
-                R.id.btn0,R.id.btn1,R.id.btn2,R.id.btn3,R.id.btn4,
-                R.id.btn5,R.id.btn6,R.id.btn7,R.id.btn8,R.id.btn9
+                R.id.btn0, R.id.btn1, R.id.btn2,
+                R.id.btn3, R.id.btn4, R.id.btn5,
+                R.id.btn6, R.id.btn7, R.id.btn8,
+                R.id.btn9
         };
 
         for (int id : btns) {
+
             Button b = findViewById(id);
+
             b.setOnClickListener(v -> {
+
+                // ✅ BUTTON ANIMATION
+                v.animate()
+                        .scaleX(0.9f)
+                        .scaleY(0.9f)
+                        .setDuration(50)
+                        .withEndAction(() ->
+                                v.animate()
+                                        .scaleX(1f)
+                                        .scaleY(1f)
+                                        .start()
+                        );
+
                 if (inputVal.length() < 3) {
-                    inputVal.append(b.getText());
-                    display.setText(inputVal.toString());
+
+                    inputVal.append(
+                            b.getText()
+                    );
+
+                    inputDisplay.setText(
+                            inputVal.toString()
+                    );
                 }
             });
         }
 
-        // DELETE
+        // ✅ DELETE BUTTON
         findViewById(R.id.btnDel).setOnClickListener(v -> {
+
             if (inputVal.length() > 0) {
-                inputVal.deleteCharAt(inputVal.length() - 1);
-                display.setText(inputVal.length() == 0 ? "0" : inputVal.toString());
+
+                inputVal.deleteCharAt(
+                        inputVal.length() - 1
+                );
+
+                if (inputVal.length() == 0) {
+
+                    inputDisplay.setText("0");
+
+                } else {
+
+                    inputDisplay.setText(
+                            inputVal.toString()
+                    );
+                }
             }
         });
 
-        // OK button
+        // ✅ OK BUTTON
         findViewById(R.id.btnOk).setOnClickListener(v -> {
 
-            if (inputVal.length() == 0) return;
+            if (inputVal.length() == 0)
+                return;
 
-            int secret = Integer.parseInt(inputVal.toString());
+            int secret = Integer.parseInt(
+                    inputVal.toString()
+            );
 
+            // ✅ VALIDATION
             if (secret < 0 || secret > 100) {
-                display.setText("0-100!");
+
+                inputDisplay.setText("0-100");
+
                 return;
             }
 
-            Intent i = new Intent(SetupActivity.this, GameActivity.class);
+            // ✅ SEND SECRET TO CLIENT
+            NetworkManager.send(
+                    "SECRET:" + secret
+            );
 
+            // ✅ OPEN GAME AS HOST
+            Intent i = new Intent(
+                    SetupActivity.this,
+                    GameActivity.class
+            );
+
+            i.putExtra("isHost", true);
             i.putExtra("secret", secret);
-            i.putExtra("setter", finalSetter);
-            i.putExtra("timer", finalTimer);
-            i.putExtra("name1", finalName1);
-            i.putExtra("name2", finalName2);
-            i.putExtra("scoreP1", finalScoreP1);
-            i.putExtra("scoreP2", finalScoreP2);
 
             startActivity(i);
+
+            finish();
         });
     }
 }
