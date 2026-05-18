@@ -7,6 +7,7 @@
         android:label="Guess Duel"
         android:icon="@drawable/ic_app">
 
+        <activity android:name=".AIGameActivity"/>
         <activity android:name=".ResultActivity" />
         <activity android:name=".GameActivity" />
         <activity android:name=".SetupActivity" />
