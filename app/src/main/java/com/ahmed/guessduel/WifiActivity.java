@@ -1,35 +1,31 @@
 package com.ahmed.guessduel;
 
 import android.app.Activity;
-import java.io.*;
+import android.content.Intent;
 import android.os.Bundle;
-import java.net.*;
 import android.widget.*;
+
+import java.net.*;
+import java.io.*;
 import java.util.Collections;
 
 public class WifiActivity extends Activity {
 
-    ServerSocket serverSocket;
-    Socket socket;
+    private ServerSocket serverSocket;
 
-    PrintWriter writer;
-    BufferedReader reader;
+    private TextView statusText;
+    private EditText ipInput;
 
-    TextView statusText;
-    EditText ipInput;
-
-    boolean running = true;
-
-    final int PORT = 5000;
+    private static final int PORT = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi);
 
+        // ✅ VIEWS
         Button hostBtn = findViewById(R.id.hostBtn);
         Button joinBtn = findViewById(R.id.joinBtn);
-        Button sendBtn = findViewById(R.id.sendBtn);
 
         statusText = findViewById(R.id.statusText);
         ipInput = findViewById(R.id.ipInput);
@@ -39,12 +35,9 @@ public class WifiActivity extends Activity {
 
         // ✅ JOIN GAME
         joinBtn.setOnClickListener(v -> connectToHost());
-
-        // ✅ SEND TEST MESSAGE
-        sendBtn.setOnClickListener(v -> sendMessage("HELLO"));
     }
 
-    // ✅ START SERVER
+    // ✅ HOST SERVER
     private void startServer() {
 
         new Thread(() -> {
@@ -60,23 +53,37 @@ public class WifiActivity extends Activity {
                         )
                 );
 
+                // ✅ CREATE SERVER
                 serverSocket = new ServerSocket(PORT);
 
-                socket = serverSocket.accept();
+                // ✅ WAIT FOR CLIENT
+                NetworkManager.socket =
+                        serverSocket.accept();
 
-                setupStreams();
+                // ✅ PREPARE STREAMS
+                NetworkManager.setupStreams();
 
-                // ✅ START LISTENING AFTER CONNECTION
-                new Thread(this::listenForMessages).start();
+                runOnUiThread(() -> {
 
-                runOnUiThread(() ->
-                        statusText.setText("Player connected ✅")
-                );
+                    statusText.setText(
+                            "Player connected ✅"
+                    );
+
+                    // ✅ OPEN SETUP SCREEN
+                    Intent i = new Intent(
+                            WifiActivity.this,
+                            SetupActivity.class
+                    );
+
+                    startActivity(i);
+                });
 
             } catch (Exception e) {
 
                 runOnUiThread(() ->
-                        statusText.setText("Server failed")
+                        statusText.setText(
+                                "Hosting failed"
+                        )
                 );
 
                 e.printStackTrace();
@@ -85,136 +92,92 @@ public class WifiActivity extends Activity {
         }).start();
     }
 
-    // ✅ CONNECT TO HOST
+    // ✅ CLIENT CONNECT
     private void connectToHost() {
 
         new Thread(() -> {
 
             try {
 
-                String ip = ipInput.getText().toString().trim();
+                String ip = ipInput
+                        .getText()
+                        .toString()
+                        .trim();
 
                 if (ip.isEmpty()) {
 
                     runOnUiThread(() ->
-                            statusText.setText("Enter host IP!")
+                            statusText.setText(
+                                    "Enter Host IP"
+                            )
                     );
 
                     return;
                 }
 
-                socket = new Socket(ip, PORT);
+                // ✅ CONNECT TO HOST
+                NetworkManager.socket =
+                        new Socket(ip, PORT);
 
-                setupStreams();
+                // ✅ PREPARE STREAMS
+                NetworkManager.setupStreams();
 
-                // ✅ START LISTENING AFTER CONNECTION
-                new Thread(this::listenForMessages).start();
+                runOnUiThread(() -> {
 
-                runOnUiThread(() ->
-                        statusText.setText("Connected ✅")
-                );
-
-            } catch (Exception e) {
-
-                runOnUiThread(() ->
-                        statusText.setText("Connection failed")
-                );
-
-                e.printStackTrace();
-            }
-
-        }).start();
-    }
-
-    // ✅ SETUP STREAMS
-    private void setupStreams() throws Exception {
-
-        writer = new PrintWriter(
-                new OutputStreamWriter(socket.getOutputStream()),
-                true
-        );
-
-        reader = new BufferedReader(
-                new InputStreamReader(socket.getInputStream())
-        );
-    }
-
-    // ✅ SEND MESSAGE
-    private void sendMessage(String msg) {
-
-        new Thread(() -> {
-
-            try {
-
-                if (writer != null) {
-
-                    writer.println(msg);
-
-                    runOnUiThread(() ->
-                            statusText.setText("Sent: " + msg)
+                    statusText.setText(
+                            "Connected ✅"
                     );
-                }
+
+                    // ✅ OPEN GAME SCREEN
+                    Intent i = new Intent(
+                            WifiActivity.this,
+                            GameActivity.class
+                    );
+
+                    i.putExtra("isHost", false);
+
+                    startActivity(i);
+                });
 
             } catch (Exception e) {
+
+                runOnUiThread(() ->
+                        statusText.setText(
+                                "Connection failed"
+                        )
+                );
+
                 e.printStackTrace();
             }
 
         }).start();
     }
 
-    // ✅ RECEIVE MESSAGES
-    private void listenForMessages() {
-
-        while (running) {
-
-            try {
-
-                if (reader != null) {
-
-                    String msg = reader.readLine();
-
-                    if (msg != null) {
-
-                        runOnUiThread(() ->
-                                statusText.setText("Received: " + msg)
-                        );
-                    }
-                }
-
-            } catch (Exception ignored) {}
-        }
-    }
-
-    // ✅ GET LOCAL WIFI/HOTSPOT IP
+    // ✅ GET LOCAL HOTSPOT/WIFI IP
     private String getLocalIpAddress() {
 
         try {
-    
+
             for (NetworkInterface networkInterface :
-                    java.util.Collections.list(
+                    Collections.list(
                             NetworkInterface.getNetworkInterfaces())) {
-    
+
                 for (InetAddress address :
-                        java.util.Collections.list(
+                        Collections.list(
                                 networkInterface.getInetAddresses())) {
-    
+
                     if (!address.isLoopbackAddress()
                             && address instanceof Inet4Address) {
-    
-                        String ip = address.getHostAddress();
-    
-                        // ✅ Ignore localhost only
-                        if (!ip.equals("127.0.0.1")) {
-                            return ip;
-                        }
+
+                        return address.getHostAddress();
                     }
                 }
             }
-    
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-    
+
         return "Unavailable";
     }
 
@@ -223,18 +186,16 @@ public class WifiActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
 
-        running = false;
-
         try {
 
-            if (reader != null)
-                reader.close();
+            if (NetworkManager.reader != null)
+                NetworkManager.reader.close();
 
-            if (writer != null)
-                writer.close();
+            if (NetworkManager.writer != null)
+                NetworkManager.writer.close();
 
-            if (socket != null)
-                socket.close();
+            if (NetworkManager.socket != null)
+                NetworkManager.socket.close();
 
             if (serverSocket != null)
                 serverSocket.close();
