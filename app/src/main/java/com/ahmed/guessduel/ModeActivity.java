@@ -12,22 +12,29 @@ public class ModeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mode);
 
-        Button pvp = findViewById(R.id.pvpBtn);
-        Button ai = findViewById(R.id.aiBtn);
+        Button aiBtn = findViewById(R.id.btnAI);
         Button wifiBtn = findViewById(R.id.btnWifi);
 
-        wifiBtn.setOnClickListener(v -> {
-            Intent i = new Intent(ModeActivity.this, WifiActivity.class);
+        // ✅ SINGLE PLAYER (AI)
+        aiBtn.setOnClickListener(v -> {
+
+            Intent i = new Intent(
+                    ModeActivity.this,
+                    DifficultyActivity.class
+            );
+
             startActivity(i);
         });
 
-        pvp.setOnClickListener(v -> openPlayers(false));
-        ai.setOnClickListener(v -> openPlayers(true));
-    }
+        // ✅ WIFI MULTIPLAYER
+        wifiBtn.setOnClickListener(v -> {
 
-    private void openPlayers(boolean isAI) {
-        Intent i = new Intent(this, PlayerActivity.class);
-        i.putExtra("isAI", isAI);
-        startActivity(i);
+            Intent i = new Intent(
+                    ModeActivity.this,
+                    WifiActivity.class
+            );
+
+            startActivity(i);
+        });
     }
 }
