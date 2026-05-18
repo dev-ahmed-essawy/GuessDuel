@@ -27,6 +27,7 @@ public class AIGameActivity extends Activity {
     // ✅ GAME
     int secret;
     int lives = 5;
+    int timerSeconds = 15;
 
     boolean gameOver = false;
     boolean playerTurn = true;
@@ -54,6 +55,7 @@ public class AIGameActivity extends Activity {
 
         // ✅ RANDOM SECRET
         secret = random.nextInt(101);
+        timerSeconds = getIntent().getIntExtra("timer", 15);
 
         // ✅ SETUP
         setupKeypad();
@@ -327,8 +329,7 @@ public class AIGameActivity extends Activity {
         cancelTimer();
 
         timer = new CountDownTimer(
-                15000,
-                1000
+            timerSeconds * 1000L, 1000
         ) {
 
             @Override
