@@ -1,7 +1,7 @@
-
 package com.ahmed.guessduel;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -22,18 +22,28 @@ public class GameActivity extends Activity {
     // ✅ INPUT
     StringBuilder inputVal = new StringBuilder();
 
-    // ✅ GAME STATE
+    // ✅ GAME
     boolean isHost = false;
     boolean gameOver = false;
 
+    boolean settingPhase = false;
+    boolean guessingPhase = false;
+
+    boolean hostTurnToSet = true;
+
     int secret = -1;
-    int lives = 5;
+
+    int currentLives = 5;
+
+    int hostScore = 0;
+    int clientScore = 0;
 
     CountDownTimer timer;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_game);
 
         // ✅ FIND VIEWS
@@ -50,48 +60,173 @@ public class GameActivity extends Activity {
                 false
         );
 
-        // ✅ HOST MODE
+        // ✅ FIRST SECRET
+        secret = getIntent().getIntExtra(
+                "secret",
+                -1
+        );
+
+        setupKeypad();
+
+        // ✅ START LISTENERS
         if (isHost) {
 
-            secret = getIntent().getIntExtra(
-                    "secret",
-                    -1
-            );
-
-            keypadContainer.setVisibility(View.GONE);
-
-            inputDisplay.setVisibility(View.GONE);
-
-            timerText.setVisibility(View.GONE);
-
-            turnText.setText(
-                    "Waiting for guesses..."
-            );
-
-            resultText.setText("");
-
             startHostListener();
-        }
 
-        // ✅ CLIENT MODE
-        else {
+            startHostSetterPhase();
 
-            keypadContainer.setVisibility(View.VISIBLE);
-
-            turnText.setText(
-                    "Lives: " + lives
-            );
-
-            resultText.setText(
-                    "Guess the number!"
-            );
-
-            setupKeypad();
+        } else {
 
             startClientListener();
 
-            startTimer();
+            startClientGuesserPhase();
         }
+    }
+
+    // ✅ HOST SETTER
+    private void startHostSetterPhase() {
+
+        settingPhase = true;
+        guessingPhase = false;
+
+        currentLives = 5;
+
+        keypadContainer.setVisibility(
+                View.GONE
+        );
+
+        inputDisplay.setVisibility(
+                View.GONE
+        );
+
+        timerText.setVisibility(
+                View.GONE
+        );
+
+        cancelTimer();
+
+        turnText.setText(
+                "Client Guessing..."
+        );
+
+        resultText.setText(
+                "Host: "
+                        + hostScore
+                        + " | Client: "
+                        + clientScore
+        );
+    }
+
+    // ✅ HOST GUESSER
+    private void startHostGuesserPhase() {
+
+        settingPhase = false;
+        guessingPhase = true;
+
+        currentLives = 5;
+
+        keypadContainer.setVisibility(
+                View.VISIBLE
+        );
+
+        inputDisplay.setVisibility(
+                View.VISIBLE
+        );
+
+        timerText.setVisibility(
+                View.VISIBLE
+        );
+
+        setKeypadEnabled(true);
+
+        turnText.setText(
+                "Guess Number - Lives: "
+                        + currentLives
+        );
+
+        resultText.setText(
+                "Host: "
+                        + hostScore
+                        + " | Client: "
+                        + clientScore
+        );
+
+        startTimer();
+    }
+
+    // ✅ CLIENT SETTER
+    private void startClientSetterPhase() {
+
+        settingPhase = true;
+        guessingPhase = false;
+
+        currentLives = 5;
+
+        keypadContainer.setVisibility(
+                View.VISIBLE
+        );
+
+        inputDisplay.setVisibility(
+                View.VISIBLE
+        );
+
+        timerText.setVisibility(
+                View.GONE
+        );
+
+        cancelTimer();
+
+        inputVal.setLength(0);
+
+        inputDisplay.setText("0");
+
+        turnText.setText(
+                "Set Secret Number"
+        );
+
+        resultText.setText(
+                "Host: "
+                        + hostScore
+                        + " | Client: "
+                        + clientScore
+        );
+    }
+
+    // ✅ CLIENT GUESSER
+    private void startClientGuesserPhase() {
+
+        settingPhase = false;
+        guessingPhase = true;
+
+        currentLives = 5;
+
+        keypadContainer.setVisibility(
+                View.VISIBLE
+        );
+
+        inputDisplay.setVisibility(
+                View.VISIBLE
+        );
+
+        timerText.setVisibility(
+                View.VISIBLE
+        );
+
+        setKeypadEnabled(true);
+
+        turnText.setText(
+                "Guess Number - Lives: "
+                        + currentLives
+        );
+
+        resultText.setText(
+                "Host: "
+                        + hostScore
+                        + " | Client: "
+                        + clientScore
+        );
+
+        startTimer();
     }
 
     // ✅ KEYPAD
@@ -113,7 +248,6 @@ public class GameActivity extends Activity {
                 if (gameOver)
                     return;
 
-                // ✅ CLICK ANIMATION
                 v.animate()
                         .scaleX(0.9f)
                         .scaleY(0.9f)
@@ -125,7 +259,6 @@ public class GameActivity extends Activity {
                                         .start()
                         );
 
-                // ✅ INPUT LIMIT
                 if (inputVal.length() < 3) {
 
                     inputVal.append(
@@ -139,7 +272,7 @@ public class GameActivity extends Activity {
             });
         }
 
-        // ✅ DELETE BUTTON
+        // ✅ DELETE
         Button delBtn = findViewById(R.id.btnDel);
 
         delBtn.setOnClickListener(v -> {
@@ -166,10 +299,12 @@ public class GameActivity extends Activity {
             }
         });
 
-        // ✅ OK BUTTON
+        // ✅ OK
         Button okBtn = findViewById(R.id.btnOk);
 
         okBtn.setOnClickListener(v -> {
+            
+                        
 
             if (gameOver)
                 return;
@@ -177,33 +312,115 @@ public class GameActivity extends Activity {
             if (inputVal.length() == 0)
                 return;
 
-            int guess = Integer.parseInt(
+            int value = Integer.parseInt(
                     inputVal.toString()
             );
+            
 
-            // ✅ SEND GUESS
-            NetworkManager.send(
-                    "GUESS:" + guess
-            );
+            // ✅ CLIENT SETS SECRET
+            if (!isHost && settingPhase) {
 
-            resultText.setText(
-                    "Guess sent: " + guess
-            );
+                secret = value;
 
-            // ✅ RESET INPUT
-            inputVal.setLength(0);
+                NetworkManager.send(
+                        "SET_SECRET:" + secret
+                );
 
-            inputDisplay.setText("0");
+                inputVal.setLength(0);
 
-            // ✅ STOP TIMER WHILE WAITING
-            cancelTimer();
+                inputDisplay.setText("0");
 
-            // ✅ DISABLE KEYPAD
-            setKeypadEnabled(false);
+                startClientSetterWaiting();
+
+                return;
+            }
+
+            // ✅ HOST GUESSES
+            // ✅ CLIENT GUESSES
+            if (guessingPhase) {
+
+                NetworkManager.send(
+                        "GUESS:" + value
+                );
+
+                resultText.setText(
+                        "Guess sent: " + value
+                );
+
+                inputVal.setLength(0);
+
+                inputDisplay.setText("0");
+
+                setKeypadEnabled(false);
+
+                cancelTimer();
+            }
         });
     }
 
-    // ✅ ENABLE / DISABLE KEYPAD
+    // ✅ CLIENT WAITING
+    private void startClientSetterWaiting() {
+
+        keypadContainer.setVisibility(
+                View.GONE
+        );
+
+        inputDisplay.setVisibility(
+                View.GONE
+        );
+
+        turnText.setText(
+                "Host Guessing..."
+        );
+
+        resultText.setText(
+                "Waiting for host guesses..."
+        );
+    }
+    // ✅ HOST ENTERS NEW SECRET
+      private void startHostSetterInputPhase() {
+
+          settingPhase = true;
+          guessingPhase = false;
+
+          currentLives = 5;
+
+          cancelTimer();
+
+          // ✅ RESET INPUT
+          inputVal.setLength(0);
+
+          inputDisplay.setText("0");
+
+          // ✅ SHOW INPUT UI
+          keypadContainer.setVisibility(
+                  View.VISIBLE
+          );
+
+          inputDisplay.setVisibility(
+                  View.VISIBLE
+          );
+
+          timerText.setVisibility(
+                  View.GONE
+          );
+
+          setKeypadEnabled(true);
+
+          turnText.setText(
+                  "Set Secret Number"
+          );
+
+          resultText.setText(
+                  "Host: "
+                          + hostScore
+                          + " | Client: "
+                          + clientScore
+          );
+      }
+    
+
+    // ✅ ENABLE / DISABLE
     private void setKeypadEnabled(boolean enabled) {
 
         int[] buttons = {
@@ -239,20 +456,19 @@ public class GameActivity extends Activity {
                     if (msg == null)
                         continue;
 
-                    // ✅ CLIENT LOST
-                    if (msg.equals("LOSE")) {
+                    // ✅ RECEIVE SECRET
+                    if (msg.startsWith("SET_SECRET:")) {
+
+                        secret = Integer.parseInt(
+                                msg.replace(
+                                        "SET_SECRET:",
+                                        ""
+                                )
+                        );
 
                         runOnUiThread(() -> {
 
-                            turnText.setText(
-                                    "Player Lost 💀"
-                            );
-
-                            resultText.setText(
-                                    "Game Over"
-                            );
-
-                            gameOver = true;
+                            startHostGuesserPhase();
                         });
 
                         continue;
@@ -283,7 +499,6 @@ public class GameActivity extends Activity {
                             result = "WIN";
                         }
 
-                        // ✅ SEND RESULT
                         NetworkManager.send(
                                 "RESULT:" + result
                         );
@@ -293,18 +508,41 @@ public class GameActivity extends Activity {
                         runOnUiThread(() -> {
 
                             resultText.setText(
-                                    "Player guessed: "
-                                            + guess
+                                    "Guess: " + guess
                             );
 
+                            // ✅ CLIENT WON
                             if (finalResult.equals("WIN")) {
 
-                                turnText.setText(
-                                        "Player Won 🎉"
-                                );
+                                if (hostTurnToSet) {
 
-                                gameOver = true;
+                                    clientScore++;
+
+                                } else {
+
+                                    hostScore++;
+                                }
+
+                                nextRound();
                             }
+                        });
+                    }
+
+                    // ✅ PLAYER LOST
+                    if (msg.equals("LOSE")) {
+
+                        if (hostTurnToSet) {
+
+                            hostScore++;
+
+                        } else {
+
+                            clientScore++;
+                        }
+
+                        runOnUiThread(() -> {
+
+                            nextRound();
                         });
                     }
 
@@ -348,7 +586,7 @@ public class GameActivity extends Activity {
                                             "⬆ Higher"
                                     );
 
-                                    lives--;
+                                    currentLives--;
 
                                     break;
 
@@ -358,7 +596,7 @@ public class GameActivity extends Activity {
                                             "⬇ Lower"
                                     );
 
-                                    lives--;
+                                    currentLives--;
 
                                     break;
 
@@ -368,56 +606,66 @@ public class GameActivity extends Activity {
                                             "🎉 Correct!"
                                     );
 
-                                    turnText.setText(
-                                            "You Won!"
-                                    );
+                                    if (hostTurnToSet) {
 
-                                    keypadContainer.setVisibility(
-                                            View.GONE
-                                    );
+                                        clientScore++;
 
-                                    cancelTimer();
+                                    } else {
 
-                                    gameOver = true;
+                                        hostScore++;
+                                    }
+
+                                    nextRound();
 
                                     return;
                             }
 
-                            // ✅ UPDATE LIVES
-                            turnText.setText(
-                                    "Lives: " + lives
-                            );
+                            // ✅ LOST ROUND
+                            if (currentLives <= 0) {
 
-                            // ✅ PLAYER LOST
-                            if (lives <= 0) {
-
-                                resultText.setText(
-                                        "💀 You Lost!"
+                                NetworkManager.send(
+                                        "LOSE"
                                 );
 
-                                turnText.setText(
-                                        "Game Over"
-                                );
+                                if (hostTurnToSet) {
 
-                                keypadContainer.setVisibility(
-                                        View.GONE
-                                );
+                                    hostScore++;
 
-                                // ✅ INFORM HOST
-                                NetworkManager.send("LOSE");
+                                } else {
 
-                                cancelTimer();
-
-                                gameOver = true;
+                                    clientScore++;
+                                }
 
                                 return;
                             }
 
-                            // ✅ ENABLE INPUT AGAIN
+                            turnText.setText(
+                                    "Lives: "
+                                            + currentLives
+                            );
+
                             setKeypadEnabled(true);
 
-                            // ✅ RESTART TIMER
                             startTimer();
+                        });
+                    }
+
+                    // ✅ NEXT ROUND
+                    if (msg.equals("NEXT_ROUND")) {
+
+                        runOnUiThread(() -> {
+
+                            hostTurnToSet =
+                                    !hostTurnToSet;
+
+                            if (hostTurnToSet) {
+
+                                startClientGuesserPhase();
+
+                            } else {
+
+                                startClientSetterPhase();
+                            }
                         });
                     }
 
@@ -427,6 +675,93 @@ public class GameActivity extends Activity {
             }
 
         }).start();
+    }
+
+    // ✅ NEXT ROUND
+    private void nextRound() {
+
+        checkWinner();
+
+        if (gameOver)
+            return;
+
+        hostTurnToSet = !hostTurnToSet;
+
+        NetworkManager.send(
+                "NEXT_ROUND"
+        );
+
+        if (isHost) {
+
+            if (hostTurnToSet) {
+
+                startHostSetterInputPhase();
+
+            } else {
+
+                startHostGuesserPhase();
+            }
+
+        } else {
+
+            if (hostTurnToSet) {
+
+                startClientGuesserPhase();
+
+            } else {
+
+                startClientSetterPhase();
+            }
+        }
+    }
+
+    // ✅ CHECK WINNER
+    private void checkWinner() {
+
+        if (hostScore >= 5) {
+
+            openResultScreen(
+                    "HOST WON!"
+            );
+
+        } else if (clientScore >= 5) {
+
+            openResultScreen(
+                    "CLIENT WON!"
+            );
+        }
+    }
+
+    // ✅ RESULT
+    private void openResultScreen(String winner) {
+
+        gameOver = true;
+
+        cancelTimer();
+
+        Intent i = new Intent(
+                GameActivity.this,
+                ResultActivity.class
+        );
+
+        i.putExtra(
+                "winner",
+                winner
+        );
+
+        i.putExtra(
+                "hostScore",
+                hostScore
+        );
+
+        i.putExtra(
+                "clientScore",
+                clientScore
+        );
+
+        startActivity(i);
+
+        finish();
     }
 
     // ✅ TIMER
@@ -440,7 +775,9 @@ public class GameActivity extends Activity {
         ) {
 
             @Override
-            public void onTick(long millisUntilFinished) {
+            public void onTick(
+                    long millisUntilFinished
+            ) {
 
                 int sec = (int)
                         (millisUntilFinished / 1000);
@@ -456,42 +793,33 @@ public class GameActivity extends Activity {
                 if (gameOver)
                     return;
 
-                lives--;
+                currentLives--;
+
+                if (currentLives <= 0) {
+
+                    NetworkManager.send(
+                            "LOSE"
+                    );
+
+                    resultText.setText(
+                            "💀 You Failed!"
+                    );
+
+                    nextRound();
+
+                    return;
+                }
 
                 turnText.setText(
-                        "Lives: " + lives
+                        "Lives: "
+                                + currentLives
                 );
 
-                // ✅ PLAYER LOST
-                if (lives <= 0) {
+                resultText.setText(
+                        "⏰ Time Up!"
+                );
 
-                    resultText.setText(
-                            "💀 You Lost!"
-                    );
-
-                    turnText.setText(
-                            "Game Over"
-                    );
-
-                    keypadContainer.setVisibility(
-                            View.GONE
-                    );
-
-                    // ✅ INFORM HOST
-                    NetworkManager.send("LOSE");
-
-                    cancelTimer();
-
-                    gameOver = true;
-
-                } else {
-
-                    resultText.setText(
-                            "⏰ Time Up!"
-                    );
-
-                    startTimer();
-                }
+                startTimer();
             }
         };
 
