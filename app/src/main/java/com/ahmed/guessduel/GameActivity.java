@@ -73,13 +73,27 @@ public class GameActivity extends Activity {
 
             startHostListener();
 
-            startHostSetterPhase();
+            startHostSetterInputPhase();
+            
 
         } else {
 
             startClientListener();
+            turnText.setText(
+                    "Waiting for host..."
+            );
 
-            startClientGuesserPhase();
+            resultText.setText(
+                    "Host is setting secret number"
+            );
+
+            keypadContainer.setVisibility(
+                    View.GONE
+            );
+
+            timerText.setVisibility(
+                    View.GONE
+            );
         }
     }
 
@@ -301,7 +315,7 @@ public class GameActivity extends Activity {
 
         // ✅ OK
         Button okBtn = findViewById(R.id.btnOk);
-
+        
         okBtn.setOnClickListener(v -> {
             
                         
@@ -315,6 +329,22 @@ public class GameActivity extends Activity {
             int value = Integer.parseInt(
                     inputVal.toString()
             );
+            
+            
+            // ✅ HOST SETS SECRET
+            if (isHost && settingPhase) {
+
+                secret = value;
+
+                inputVal.setLength(0);
+
+                inputDisplay.setText("0");
+
+                startHostSetterPhase();
+
+                return;
+            }
+
             
 
             // ✅ CLIENT SETS SECRET
@@ -804,8 +834,6 @@ public class GameActivity extends Activity {
                     resultText.setText(
                             "💀 You Failed!"
                     );
-
-                    nextRound();
 
                     return;
                 }
