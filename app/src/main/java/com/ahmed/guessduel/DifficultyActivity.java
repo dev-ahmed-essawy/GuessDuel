@@ -7,33 +7,50 @@ import android.widget.Button;
 
 public class DifficultyActivity extends Activity {
 
+    Button easyBtn;
+    Button mediumBtn;
+    Button hardBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_difficulty);
 
-        Button easy = findViewById(R.id.easyBtn);
-        Button medium = findViewById(R.id.mediumBtn);
-        Button hard = findViewById(R.id.hardBtn);
+        // ✅ FIND VIEWS
+        easyBtn = findViewById(R.id.easyBtn);
+        mediumBtn = findViewById(R.id.mediumBtn);
+        hardBtn = findViewById(R.id.hardBtn);
 
-        String name1 = getIntent().getStringExtra("name1");
-        String name2 = getIntent().getStringExtra("name2");
+        // ✅ EASY MODE
+        easyBtn.setOnClickListener(v -> {
+            startGame(20);
+        });
 
-        easy.setOnClickListener(v -> startGame(20, name1, name2));
-        medium.setOnClickListener(v -> startGame(15, name1, name2));
-        hard.setOnClickListener(v -> startGame(10, name1, name2));
+        // ✅ MEDIUM MODE
+        mediumBtn.setOnClickListener(v -> {
+            startGame(15);
+        });
+
+        // ✅ HARD MODE
+        hardBtn.setOnClickListener(v -> {
+            startGame(10);
+        });
     }
 
-    private void startGame(int timer, String n1, String n2) {
+    // ✅ START AI GAME
+    private void startGame(int timerSeconds) {
 
-        Intent i = new Intent(this, SetupActivity.class);
-        i.putExtra("timer", timer);
-        i.putExtra("setter", 1);
-        i.putExtra("scoreP1", 0);
-        i.putExtra("scoreP2", 0);
-        i.putExtra("name1", n1);
-        i.putExtra("name2", n2);
+        Intent intent = new Intent(
+                DifficultyActivity.this,
+                AIGameActivity.class
+        );
 
-        startActivity(i);
+        // ✅ SEND TIMER VALUE
+        intent.putExtra(
+                "timer",
+                timerSeconds
+        );
+
+        startActivity(intent);
     }
 }
