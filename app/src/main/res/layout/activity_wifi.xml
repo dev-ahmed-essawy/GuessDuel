@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#0D1117">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="WiFi Multiplayer"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#FFD54F"
+        android:layout_marginBottom="30dp"/>
+
+    <!-- HOST -->
+    <Button
+        android:id="@+id/hostBtn"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:text="Host Game"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#00C853"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- IP INPUT -->
+    <EditText
+        android:id="@+id/ipInput"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:hint="Host IP Address"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        android:inputType="text"
+        android:padding="12dp"
+        android:backgroundTint="#FFFFFF"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- JOIN -->
+    <Button
+        android:id="@+id/joinBtn"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:text="Join Game"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#1F6FEB"
+        android:layout_marginBottom="30dp"/>
+
+    <!-- SEND -->
+    <Button
+        android:id="@+id/sendBtn"
+        android:layout_width="220dp"
+        android:layout_height="60dp"
+        android:text="Send HELLO"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#FF6D00"
+        android:layout_marginBottom="20dp"/>
+
+    <!-- STATUS -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waiting..."
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"/>
+
+</LinearLayout>
