@@ -645,8 +645,6 @@ public class GameActivity extends Activity {
                                         hostScore++;
                                     }
 
-                                    nextRound();
-
                                     return;
                             }
 
@@ -656,7 +654,7 @@ public class GameActivity extends Activity {
                                 NetworkManager.send(
                                         "LOSE"
                                 );
-
+/*
                                 if (hostTurnToSet) {
 
                                     hostScore++;
@@ -665,7 +663,7 @@ public class GameActivity extends Activity {
 
                                     clientScore++;
                                 }
-
+*/
                                 return;
                             }
 
@@ -679,13 +677,42 @@ public class GameActivity extends Activity {
                             startTimer();
                         });
                     }
-
-                    // ✅ NEXT ROUND
+                    
+                    // ✅ START GUESS
                     if (msg.equals("START_GUESS")) {
 
                         runOnUiThread(() -> {
+
                             startClientGuesserPhase();
                         });
+
+                        continue;
+                    }
+
+
+                    // ✅ NEXT ROUND
+                    if (msg.startsWith("NEXT_ROUND:")) {
+
+                        String value = msg.replace(
+                                "NEXT_ROUND:",
+                                ""
+                        );
+
+                        hostTurnToSet =
+                                Boolean.parseBoolean(value);
+
+                        runOnUiThread(() -> {
+
+                            if (hostTurnToSet) {
+
+                                startClientGuesserPhase();
+
+                            } else {
+
+                                startClientSetterPhase();
+                            }
+                        });
+
                         continue;
                     }
 
@@ -705,10 +732,11 @@ public class GameActivity extends Activity {
         if (gameOver)
             return;
 
-        hostTurnToSet = !hostTurnToSet;
+        if (isHost) 
+          hostTurnToSet = !hostTurnToSet;
 
         NetworkManager.send(
-                "NEXT_ROUND"
+                "NEXT_ROUND:" + hostTurnToSet
         );
 
         if (isHost) {
@@ -824,6 +852,7 @@ public class GameActivity extends Activity {
                     resultText.setText(
                             "💀 You Failed!"
                     );
+                    setKeypadEnabled(false);
 
                     return;
                 }
