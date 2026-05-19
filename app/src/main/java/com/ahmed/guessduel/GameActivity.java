@@ -100,7 +100,7 @@ public class GameActivity extends Activity {
     // ✅ HOST SETTER
     private void startHostSetterPhase() {
 
-        settingPhase = true;
+        settingPhase = false;
         guessingPhase = false;
 
         currentLives = 5;
@@ -335,13 +335,13 @@ public class GameActivity extends Activity {
             if (isHost && settingPhase) {
 
                 secret = value;
-
+                hostTurnToSet = false;
                 inputVal.setLength(0);
 
                 inputDisplay.setText("0");
 
                 startHostSetterPhase();
-
+                NetworkManager.send("NEXT_ROUND");
                 return;
             }
 
