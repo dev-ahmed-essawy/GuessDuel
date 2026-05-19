@@ -341,7 +341,7 @@ public class GameActivity extends Activity {
                 inputDisplay.setText("0");
 
                 startHostSetterPhase();
-                NetworkManager.send("NEXT_ROUND");
+                NetworkManager.send("START_GUESS");
                 return;
             }
 
@@ -681,22 +681,12 @@ public class GameActivity extends Activity {
                     }
 
                     // ✅ NEXT ROUND
-                    if (msg.equals("NEXT_ROUND")) {
+                    if (msg.equals("START_GUESS")) {
 
                         runOnUiThread(() -> {
-
-                            hostTurnToSet =
-                                    !hostTurnToSet;
-
-                            if (hostTurnToSet) {
-
-                                startClientGuesserPhase();
-
-                            } else {
-
-                                startClientSetterPhase();
-                            }
+                            startClientGuesserPhase();
                         });
+                        continue;
                     }
 
                 } catch (Exception e) {
